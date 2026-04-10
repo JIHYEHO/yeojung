@@ -79,9 +79,14 @@ export default function StepSubwayLine({ onComplete }: StepSubwayLineProps) {
           ) : (
             <motion.div key="station" initial={{opacity:0, x:-20}} animate={{opacity:1, x:0}} exit={{opacity:0, x:20}} className="flex flex-col items-center w-full">
               <div className="bg-indigo-100 text-indigo-600 px-4 py-1.5 rounded-full font-black text-xs sm:text-sm tracking-widest mb-6 shadow-sm border border-indigo-200">STEP 1-5. 출발역 선택</div>
-              <div className="bg-white/80 text-slate-700 w-full px-5 py-6 rounded-2xl font-black text-sm sm:text-base tracking-wide mb-6 shadow-sm border border-slate-200 text-center leading-relaxed">
+              <div className="bg-white/80 text-slate-700 w-full px-5 py-6 rounded-2xl tracking-wide mb-6 shadow-sm border border-slate-200 text-center leading-relaxed">
                 <span className="text-xl inline-block mb-1 font-black drop-shadow-sm" style={{color: currentLineData.color}}>{lineStr}호선 탑승 준비!</span><br/>
-                <span className="text-slate-500 font-bold">어디서 만날까요?</span>
+                <span className="text-slate-700 font-black text-base">어디서 만날까요?</span>
+                <p className="mt-3 text-[11px] sm:text-xs font-medium text-slate-400 leading-normal break-keep">
+                  가장 편한 출발역을 선택해 주세요!<br/>
+                  해당 역에서 <span className="text-indigo-400 font-bold">30분 내외(최대 15정거장)</span> 거리에 있는<br/>
+                  뜻밖의 약속 장소를 랜덤으로 뽑아드려요. 🧭
+                </p>
               </div>
               <select 
                 value={startStation} 
