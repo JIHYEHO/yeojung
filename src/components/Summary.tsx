@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
+import { useEffect } from 'react';
 import { SUBWAY_DATA } from '../data/subway';
+import { supabase } from '../utils/supabaseClient';
 
 interface SummaryProps {
   results: { 
@@ -11,12 +13,51 @@ interface SummaryProps {
     activity?: string; 
     activityPayer?: string; 
   };
+  user?: any;
   onReset: () => void;
 }
 
-export default function Summary({ results, onReset }: SummaryProps) {
+import { useRef } from 'react';
+
+export default function Summary({ results, user, onReset }: SummaryProps) {
+  const hasSaved = useRef(false);
   const lineData = results.line ? SUBWAY_DATA[results.line] : undefined;
   const lineColor = lineData?.color || '#ec4899';
+
+  useEffect(() => {
+    const saveToHistory = async () => {
+      if (hasSaved.current) return;
+      hasSaved.current = true;
+
+      try {
+        const { data, error } = await supabase.from('history').insert([
+          {
+            line_id: results.line,
+            station: results.station,
+            menu: results.menu,
+            activity: results.activity,
+            payer_menu: results.menuPayer,
+            payer_activity: results.activityPayer,
+            user_id: user?.id || null
+          }
+        ]).select('id').single();
+
+        if (error) throw error;
+        
+        // localStorage에 내 기기 전용 ID 리스트 저장
+        if (data && data.id) {
+          const myJourneys = JSON.parse(localStorage.getItem('my_journeys') || '[]');
+          localStorage.setItem('my_journeys', JSON.stringify([...myJourneys, data.id]));
+        }
+
+        console.log("히스토리 저장 성공! 🚀");
+      } catch (err) {
+        console.error("히스토리 저장 실패:", err);
+      }
+    };
+
+    saveToHistory();
+  }, [results]);
 
   const handleShare = async () => {
     const text = `✨ 우리의 완벽한 데이트/모임 코스 ✨\n\n🚇 모임: ${lineData?.name || ''} ${results.station}역\n🍔 메뉴: ${results.menu} (💸결제: ${results.menuPayer})\n🎯 놀거리: ${results.activity} (💸결제: ${results.activityPayer})\n\n우리 오늘 이거 어때? 💖\n(만든곳: 뜻밖의 여정)`;

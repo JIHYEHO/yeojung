@@ -52,7 +52,7 @@ export default function StepMenu({ onComplete, previousResult }: StepMenuProps) 
             origin: { y: 0.6 },
             colors: ['#f472b6', '#a78bfa', '#38bdf8', '#facc15', '#fb7185'] 
           });
-        }, 1000); 
+        }, 400); 
         return;
       }
 

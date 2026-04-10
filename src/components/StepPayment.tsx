@@ -61,7 +61,7 @@ export default function StepPayment({ onComplete, previousResults, context }: St
             origin: { y: 0.6 },
             colors: ['#10B981', '#34D399', '#A7F3D0', '#FDE68A', '#FCD34D'] 
           });
-        }, 1500); 
+        }, 400); 
         return;
       }
 

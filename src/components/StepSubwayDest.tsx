@@ -111,7 +111,7 @@ export default function StepSubwayDest({ lineId, startStation, onComplete }: Ste
         setTimeout(() => {
           playTada();
           confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 } });
-        }, 1000); 
+        }, 400); 
         return;
       }
       let progress = elapsed / durationMs;
@@ -139,9 +139,7 @@ export default function StepSubwayDest({ lineId, startStation, onComplete }: Ste
 
         <div className="bg-indigo-100 text-indigo-600 px-4 py-1.5 rounded-full font-black text-xs sm:text-sm tracking-widest mx-auto shadow-sm border border-indigo-200 w-max">STEP 2. 방향 & 목적지</div>
         
-        <div className="bg-white/80 text-slate-700 px-5 py-3 rounded-2xl font-black text-sm sm:text-base tracking-wide shadow-sm border border-slate-200 text-center leading-relaxed">
-          어느 방향으로 갈까요?
-        </div>
+
         
         <div className="flex flex-row w-full items-center justify-center gap-2 sm:gap-6 pt-2 pb-4">
           <div className="flex flex-col items-center">

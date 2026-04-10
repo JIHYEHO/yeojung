@@ -52,7 +52,7 @@ export default function StepActivity({ onComplete, previousResults }: StepActivi
             origin: { y: 0.6 },
             colors: ['#818CF8', '#A78BFA', '#C084FC', '#E879F9', '#F472B6'] 
           });
-        }, 1000); 
+        }, 400); 
         return;
       }
 
