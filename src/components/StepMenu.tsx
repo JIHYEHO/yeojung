@@ -79,7 +79,6 @@ export default function StepMenu({ onComplete, previousResult }: StepMenuProps) 
         
         <div className="flex justify-center pt-2 pb-4">
           <Slot 
-            title="MENU" 
             value={FOOD_EMOJIS[menu] || '🍽️'} 
             subValue={menu}
             isRolling={isRolling} 

@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 
 export interface SlotProps {
-  title: string;
+  title?: string;
   value: string | number;
   subValue?: string;
   isRolling: boolean;
@@ -10,7 +10,7 @@ export interface SlotProps {
   width?: string;
 }
 
-export const Slot = ({ title, value, subValue, isRolling, color, isDone, width = "w-[125px] sm:w-[150px]" }: SlotProps) => (
+export const Slot = ({ value, subValue, isRolling, color, isDone, width = "w-[125px] sm:w-[150px]" }: SlotProps) => (
   <div className={`flex flex-col items-center space-y-2 shrink-0 ${width}`}>
     <div className={`w-full aspect-[3/4] min-h-[120px] rounded-[2rem] flex flex-col items-center justify-center overflow-hidden relative transition-all duration-500 ${
         isRolling 
