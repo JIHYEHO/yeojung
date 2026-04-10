@@ -207,7 +207,7 @@ export default function StepSubwayDest({ lineId, startStation, onComplete }: Ste
           <motion.div initial={{scale:0.8,opacity:0}} animate={{scale:1,opacity:1}} 
             transition={{ type: "spring", damping: 15, stiffness: 100 }}
             className="p-8 bg-white/70 backdrop-blur-3xl rounded-[2.5rem] text-center shadow-2xl border border-white/90">
-             <h3 className="text-4xl sm:text-5xl font-black tracking-tighter drop-shadow-sm mb-2" style={{color: currentLineData.color}}>{result}역 <span className="text-2xl sm:text-3xl text-slate-400 font-bold leading-normal">당첨!</span></h3>
+             <h3 className="text-3xl sm:text-4xl font-black tracking-tighter drop-shadow-sm mb-2" style={{color: currentLineData.color}}>{result}역 <span className="text-xl sm:text-2xl text-slate-400 font-bold leading-normal">당첨!</span></h3>
              <button onClick={() => onComplete(result)} className="mt-6 w-full py-4 rounded-xl font-bold bg-slate-800 text-white hover:bg-slate-700 shadow-lg active:scale-95 transition-transform">메뉴 정하러 가기 👉</button>
           </motion.div>
         )}

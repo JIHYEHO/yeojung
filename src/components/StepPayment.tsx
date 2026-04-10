@@ -147,7 +147,7 @@ export default function StepPayment({ onComplete, previousResults, context }: St
           <motion.div initial={{scale:0.8,opacity:0}} animate={{scale:1,opacity:1}} 
             transition={{ type: "spring", damping: 15, stiffness: 100 }}
             className="p-8 bg-white/70 backdrop-blur-3xl rounded-[2.5rem] text-center shadow-2xl border border-white/90">
-             <h3 className="text-4xl sm:text-5xl font-black text-emerald-500 tracking-tighter drop-shadow-sm mb-2"><span className="text-2xl sm:text-3xl text-slate-400 font-bold leading-normal">{isMenu ? '식사비는 ' : '놀거리는 '}</span>{result}<span className="text-2xl sm:text-3xl text-slate-400 font-bold leading-normal">님이!</span></h3>
+             <h3 className="text-3xl sm:text-4xl font-black text-emerald-500 tracking-tighter drop-shadow-sm mb-2"><span className="text-xl sm:text-2xl text-slate-400 font-bold leading-normal">{isMenu ? '식사비는 ' : '놀거리는 '}</span>{result}<span className="text-xl sm:text-2xl text-slate-400 font-bold leading-normal">님이!</span></h3>
              <button onClick={() => onComplete(result)} className="mt-6 w-full py-4 rounded-xl font-bold bg-slate-800 text-white hover:bg-slate-700 shadow-lg active:scale-95 transition-transform">{nextButtonText}</button>
           </motion.div>
         )}
