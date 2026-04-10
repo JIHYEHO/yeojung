@@ -62,30 +62,31 @@ export default function StepSubwayLine({ onComplete }: StepSubwayLineProps) {
 
   return (
     <motion.div initial={{opacity:0, x: -50}} animate={{opacity:1, x:0}} exit={{opacity:0, x:50}} className="space-y-6">
-      <div className="bg-white/40 backdrop-blur-2xl p-6 rounded-[2.5rem] border border-white/60 space-y-6 shadow-xl relative overflow-hidden">
-        
-        <div className="flex flex-col items-center">
-            <div className="bg-indigo-100 text-indigo-600 px-4 py-1.5 rounded-full font-black text-xs sm:text-sm tracking-widest mb-4 shadow-sm border border-indigo-200">STEP 1. 노선 추첨</div>
-            <Slot 
-              title="LINE" 
-              value={`${lineStr}호선`} 
-              subValue="Seoul Metro" 
-              isRolling={isRollingLine} 
-              isDone={selectedLineId !== null} 
-              color={currentLineData.color} 
-            />
-        </div>
-
-        <AnimatePresence>
-          {phase === 'station' && (
-            <motion.div initial={{opacity:0, height:0}} animate={{opacity:1, height:'auto'}} className="pt-4 border-t border-white/40 flex flex-col items-center">
-              <div className="bg-white/80 text-slate-700 px-5 py-3 rounded-2xl font-black text-sm sm:text-base tracking-wide mb-4 shadow-sm border border-slate-200 text-center leading-relaxed">
-                <span className="text-indigo-500">{lineStr}호선 탑승 준비!</span><br/>어디서 만날까요?
+      <div className="bg-white/40 backdrop-blur-2xl p-6 rounded-[2.5rem] border border-white/60 shadow-xl relative overflow-hidden">
+        <AnimatePresence mode="wait">
+          {phase === 'line' ? (
+            <motion.div key="line" initial={{opacity:0, x:-20}} animate={{opacity:1, x:0}} exit={{opacity:0, x:20}} className="flex flex-col items-center w-full">
+              <div className="bg-indigo-100 text-indigo-600 px-4 py-1.5 rounded-full font-black text-xs sm:text-sm tracking-widest mb-6 shadow-sm border border-indigo-200">STEP 1. 노선 추첨</div>
+              <Slot 
+                title="LINE" 
+                value={`${lineStr}호선`} 
+                subValue="Seoul Metro" 
+                isRolling={isRollingLine} 
+                isDone={selectedLineId !== null} 
+                color={currentLineData.color} 
+              />
+            </motion.div>
+          ) : (
+            <motion.div key="station" initial={{opacity:0, x:-20}} animate={{opacity:1, x:0}} exit={{opacity:0, x:20}} className="flex flex-col items-center w-full">
+              <div className="bg-indigo-100 text-indigo-600 px-4 py-1.5 rounded-full font-black text-xs sm:text-sm tracking-widest mb-6 shadow-sm border border-indigo-200">STEP 1-5. 출발역 선택</div>
+              <div className="bg-white/80 text-slate-700 w-full px-5 py-6 rounded-2xl font-black text-sm sm:text-base tracking-wide mb-6 shadow-sm border border-slate-200 text-center leading-relaxed">
+                <span className="text-xl inline-block mb-1 font-black drop-shadow-sm" style={{color: currentLineData.color}}>{lineStr}호선 탑승 준비!</span><br/>
+                <span className="text-slate-500 font-bold">어디서 만날까요?</span>
               </div>
               <select 
                 value={startStation} 
                 onChange={(e) => setStartStation(e.target.value)} 
-                className="w-full bg-white/70 border border-slate-200 rounded-xl px-4 py-3 text-lg font-bold focus:outline-none focus:border-indigo-400 text-slate-700 text-center shadow-sm"
+                className="w-full bg-white/70 border border-slate-200 rounded-xl px-4 py-4 text-xl font-black focus:outline-none focus:border-indigo-400 text-slate-800 text-center shadow-sm"
               >
                 {currentLineData.stations.map(st => <option key={st} value={st}>{st}역</option>)}
               </select>
