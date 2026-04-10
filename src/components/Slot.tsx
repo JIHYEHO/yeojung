@@ -12,9 +12,6 @@ export interface SlotProps {
 
 export const Slot = ({ title, value, subValue, isRolling, color, isDone, width = "w-[125px] sm:w-[150px]" }: SlotProps) => (
   <div className={`flex flex-col items-center space-y-2 shrink-0 ${width}`}>
-    <span className="text-slate-500 text-[11px] font-black tracking-widest bg-white/60 px-3 py-1 rounded-full shadow-sm backdrop-blur-sm border border-white/50 whitespace-nowrap overflow-hidden text-ellipsis max-w-full">
-      {title}
-    </span>
     <div className={`w-full aspect-[3/4] min-h-[120px] rounded-[2rem] flex flex-col items-center justify-center overflow-hidden relative transition-all duration-500 ${
         isRolling 
         ? 'bg-white/80 shadow-[inset_0_4px_10px_rgba(0,0,0,0.05)] border-2 border-pink-200/50' 
