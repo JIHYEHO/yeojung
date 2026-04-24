@@ -155,6 +155,14 @@ export default function StepPayment({ onComplete, previousResults, context }: St
             className="p-8 bg-white/70 backdrop-blur-3xl rounded-[2.5rem] text-center shadow-2xl border border-white/90">
              <h3 className="text-3xl sm:text-4xl font-black text-emerald-500 tracking-tighter drop-shadow-sm mb-2"><span className="text-xl sm:text-2xl text-slate-400 font-bold leading-normal">{isMenu ? '식사비는 ' : '놀거리는 '}</span>{result}<span className="text-xl sm:text-2xl text-slate-400 font-bold leading-normal">님이!</span></h3>
              <button onClick={() => onComplete(result)} className="mt-6 w-full py-4 rounded-xl font-bold bg-slate-800 text-white hover:bg-slate-700 shadow-lg active:scale-95 transition-transform">{nextButtonText}</button>
+             {isMenu && previousResults.station && previousResults.menu && (
+               <button
+                 onClick={() => window.open(`https://search.naver.com/search.naver?query=${encodeURIComponent(previousResults.station + '역 ' + previousResults.menu)}`, '_blank')}
+                 className="mt-2 w-full py-3 rounded-xl font-bold text-sm bg-[#03C75A] text-white active:scale-95 transition-transform shadow"
+               >
+                 🔍 {previousResults.station}역 {previousResults.menu} 네이버에서 찾기
+               </button>
+             )}
           </motion.div>
         )}
       </AnimatePresence>
