@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { Slot } from './Slot';
@@ -17,6 +17,11 @@ export default function StepPayment({ onComplete, previousResults, context }: St
   const [isRolling, setIsRolling] = useState(false);
   const [payer, setPayer] = useState('나');
   const [result, setResult] = useState<string | null>(null);
+  const cancelled = useRef(false);
+  useEffect(() => {
+    cancelled.current = false;
+    return () => { cancelled.current = true; };
+  }, []);
 
   const addParticipant = (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,9 +49,10 @@ export default function StepPayment({ onComplete, previousResults, context }: St
     const durationMs = 8000;
 
     const runTick = () => {
+      if (cancelled.current) return;
       let now = performance.now();
       let elapsed = now - startTime;
-      
+
       if (elapsed >= durationMs) {
         setPayer(finalPayer);
         setIsRolling(false);

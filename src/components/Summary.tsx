@@ -1,26 +1,73 @@
 import { motion } from 'framer-motion';
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { toPng } from 'html-to-image';
 import { SUBWAY_DATA } from '../data/subway';
 import { supabase } from '../utils/supabaseClient';
 
 interface SummaryProps {
-  results: { 
+  results: {
     line?: string;
     startStation?: string;
-    station?: string; 
-    menu?: string; 
-    menuPayer?: string; 
-    activity?: string; 
-    activityPayer?: string; 
+    station?: string;
+    menu?: string;
+    menuPayer?: string;
+    activity?: string;
+    activityPayer?: string;
+  };
+  photos: {
+    station?: string;
+    menu?: string;
+    activity?: string;
   };
   user?: any;
   onReset: () => void;
 }
 
-import { useRef } from 'react';
-
-export default function Summary({ results, user, onReset }: SummaryProps) {
+export default function Summary({ results, photos, user, onReset }: SummaryProps) {
   const hasSaved = useRef(false);
+  const [copyMsg, setCopyMsg] = useState('');
+  const [frameImg, setFrameImg] = useState<string | null>(null);
+  const [generating, setGenerating] = useState(false);
+  const frameRef = useRef<HTMLDivElement>(null);
+
+  const hasPhotos = photos.station || photos.menu || photos.activity;
+
+  const handleGenerateFrame = async () => {
+    if (!frameRef.current) return;
+    setGenerating(true);
+    try {
+      const dataUrl = await toPng(frameRef.current, { pixelRatio: 3 });
+      setFrameImg(dataUrl);
+    } catch (err) {
+      console.error('html2canvas 실패:', err);
+      setCopyMsg('이미지 생성에 실패했습니다.');
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleSaveFrame = () => {
+    if (!frameImg) return;
+    const a = document.createElement('a');
+    a.href = frameImg;
+    a.download = `yeojung_${results.station}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  const handleShareFrame = async () => {
+    if (!frameImg) return;
+    try {
+      const blob = await (await fetch(frameImg)).blob();
+      const file = new File([blob], 'yeojung.png', { type: 'image/png' });
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], title: '뜻밖의 여정 🚇', text: `${results.station}역 완벽한 하루!` });
+        return;
+      }
+    } catch { /* fallback */ }
+    handleSaveFrame();
+  };
   const lineData = results.line ? SUBWAY_DATA[results.line] : undefined;
   const lineColor = lineData?.color || '#ec4899';
 
@@ -74,19 +121,26 @@ export default function Summary({ results, user, onReset }: SummaryProps) {
     } else {
       try {
         await navigator.clipboard.writeText(text);
-        alert("데이트 코스가 텍스트로 클립보드에 복사되었습니다! 카카오톡에 붙여넣기 하세요!");
+        setCopyMsg("클립보드에 복사됐어요! 카카오톡에 붙여넣기 하세요 💌");
       } catch (err) {
-        alert("복사에 실패했습니다.");
+        setCopyMsg("복사에 실패했습니다.");
       }
     }
   };
 
+  const photoSlots: { key: keyof typeof photos; label: string }[] = [
+    { key: 'station', label: '📍 역 도착' },
+    { key: 'menu',    label: '🍔 식사'   },
+    { key: 'activity',label: '🎯 놀거리' },
+  ];
+
   return (
     <motion.div initial={{opacity:0, scale: 0.9}} animate={{opacity:1, scale:1}} className="space-y-6 w-full">
+
+      {/* 결과 카드 */}
       <div className="bg-white/40 backdrop-blur-2xl p-6 sm:p-8 rounded-[2.5rem] border border-white/60 space-y-6 shadow-2xl relative overflow-hidden text-center">
         <div className="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-white/80 to-transparent pointer-events-none rounded-t-[2.5rem]"></div>
         <h3 className="text-2xl font-black text-slate-800 relative z-10">✨ 완벽한 데이트 라인업</h3>
-        
         <div className="space-y-3 relative z-10">
           <div className="bg-white/70 p-4 rounded-2xl border border-white/80 shadow-sm flex flex-col gap-1 items-start justify-center">
             <span className="text-slate-400 font-bold text-sm mb-1">📍 최종 모임 장소</span>
@@ -97,31 +151,103 @@ export default function Summary({ results, user, onReset }: SummaryProps) {
               <span className="text-xl sm:text-2xl font-black drop-shadow-sm" style={{ color: lineColor }}>{results.station}역</span>
             </div>
           </div>
-
           <div className="bg-white/70 p-4 rounded-2xl border border-white/80 shadow-sm grid grid-cols-2 text-left gap-4">
             <div>
-               <span className="text-slate-400 font-bold text-[10px] sm:text-xs block mb-1">🍔 메뉴</span>
-               <span className="text-lg font-black text-orange-500 truncate block">{results.menu}</span>
+              <span className="text-slate-400 font-bold text-[10px] sm:text-xs block mb-1">🍔 메뉴</span>
+              <span className="text-lg font-black text-orange-500 truncate block">{results.menu}</span>
             </div>
             <div className="border-l border-slate-200 pl-4">
-               <span className="text-slate-400 font-bold text-[10px] sm:text-xs block mb-1">💸 식비 결제</span>
-               <span className="text-lg font-black text-emerald-500 truncate block">{results.menuPayer}님</span>
+              <span className="text-slate-400 font-bold text-[10px] sm:text-xs block mb-1">💸 식비 결제</span>
+              <span className="text-lg font-black text-emerald-500 truncate block">{results.menuPayer}님</span>
             </div>
           </div>
-
           <div className="bg-white/70 p-4 rounded-2xl border border-white/80 shadow-sm grid grid-cols-2 text-left gap-4">
             <div>
-               <span className="text-slate-400 font-bold text-[10px] sm:text-xs block mb-1">🎯 놀거리</span>
-               <span className="text-lg font-black text-violet-500 truncate block">{results.activity}</span>
+              <span className="text-slate-400 font-bold text-[10px] sm:text-xs block mb-1">🎯 놀거리</span>
+              <span className="text-lg font-black text-violet-500 truncate block">{results.activity}</span>
             </div>
             <div className="border-l border-slate-200 pl-4">
-               <span className="text-slate-400 font-bold text-[10px] sm:text-xs block mb-1">💸 놀거리 결제</span>
-               <span className="text-lg font-black text-teal-500 truncate block">{results.activityPayer}님</span>
+              <span className="text-slate-400 font-bold text-[10px] sm:text-xs block mb-1">💸 놀거리 결제</span>
+              <span className="text-lg font-black text-teal-500 truncate block">{results.activityPayer}님</span>
             </div>
           </div>
         </div>
       </div>
-      
+
+      {/* 인생네컷 프레임 섹션 */}
+      {hasPhotos && (
+        <div className="bg-white/40 backdrop-blur-2xl p-6 rounded-[2.5rem] border border-white/60 shadow-xl space-y-4">
+          <p className="text-center font-black text-slate-700 text-lg">📸 오늘의 인생네컷</p>
+
+          {frameImg ? (
+            /* 생성 완료 — 이미지 표시 */
+            <div className="space-y-3">
+              <div className="w-full rounded-2xl overflow-hidden shadow-lg">
+                <img src={frameImg} alt="인생네컷 프레임" className="w-full h-auto" />
+              </div>
+              <button
+                onClick={handleShareFrame}
+                className="w-full py-4 rounded-2xl font-black text-lg bg-gradient-to-r from-rose-400 to-pink-500 text-white shadow-lg active:scale-95 transition-transform"
+              >
+                인스타에 자랑하기 📲
+              </button>
+              <button
+                onClick={handleSaveFrame}
+                className="w-full py-3 rounded-2xl font-bold text-sm text-slate-500 bg-white/60 border border-slate-200 active:scale-95"
+              >
+                갤러리에 저장 ⬇️
+              </button>
+            </div>
+          ) : (
+            <>
+              {/* 프레임 미리보기 — html2canvas 캡처 대상 (화면에 직접 렌더링) */}
+              <div
+                ref={frameRef}
+                style={{ background: '#0f0f1a', padding: '20px', borderRadius: '16px', fontFamily: 'system-ui, sans-serif' }}
+              >
+                {/* 브랜딩 */}
+                <div style={{ textAlign: 'center', marginBottom: '14px', paddingBottom: '14px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                  <p style={{ color: '#fb7185', fontWeight: 900, fontSize: '10px', letterSpacing: '0.25em', margin: 0, textTransform: 'uppercase' }}>💘 뜻밖의 여정</p>
+                  <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '10px', margin: '4px 0 0' }}>
+                    {new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
+                  </p>
+                </div>
+                {/* 사진 3장 */}
+                {photoSlots.map(({ key, label }) => (
+                  <div key={key} style={{ width: '100%', height: '180px', borderRadius: '10px', overflow: 'hidden', background: 'rgba(255,255,255,0.06)', marginBottom: '6px' }}>
+                    {photos[key]
+                      ? <img src={photos[key]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                      : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.25)', fontSize: '13px', fontWeight: 700 }}>{label}</div>
+                    }
+                  </div>
+                ))}
+                {/* 하단 정보 */}
+                <div style={{ textAlign: 'center', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                  <p style={{ color: lineColor, fontWeight: 900, fontSize: '20px', margin: '0 0 2px', letterSpacing: '-0.02em' }}>{results.station}역</p>
+                  <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '10px', margin: '0 0 8px', fontWeight: 700 }}>{lineData?.name}</p>
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: '5px', flexWrap: 'wrap' }}>
+                    <span style={{ background: 'rgba(251,146,60,0.15)', color: '#fb923c', padding: '3px 9px', borderRadius: '20px', fontSize: '10px', fontWeight: 700 }}>🍔 {results.menu}</span>
+                    <span style={{ background: 'rgba(167,139,250,0.15)', color: '#a78bfa', padding: '3px 9px', borderRadius: '20px', fontSize: '10px', fontWeight: 700 }}>🎯 {results.activity}</span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={handleGenerateFrame}
+                disabled={generating}
+                className={`w-full py-4 rounded-2xl font-black text-lg transition-all active:scale-95 ${generating ? 'bg-white/60 text-slate-400' : 'bg-slate-800 text-white shadow-lg'}`}
+              >
+                {generating ? '프레임 만드는 중... ✨' : '🎞️ 이 프레임으로 저장하기'}
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
+      {copyMsg && (
+        <p className="text-center text-sm font-bold text-emerald-600 bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-100">{copyMsg}</p>
+      )}
+
       <div className="space-y-3">
         <button onClick={handleShare} className="w-full py-5 rounded-[2rem] text-xl font-black transition-all bg-gradient-to-r from-pink-500 to-rose-400 text-white shadow-lg active:scale-95 border border-white/20">
           이 코스로 친구한테 공유하기 💌
@@ -130,7 +256,7 @@ export default function Summary({ results, user, onReset }: SummaryProps) {
           <span className="text-lg font-black tracking-tight">뜻밖의 추억 쌓기 💡</span>
           <span className="text-xs font-bold bg-white/20 px-3 py-1 rounded-full mt-1">네이버에서 '{results.station}역 데이트' 동선 찾기 👇</span>
         </button>
-        <button onClick={onReset} className="w-full py-4 rounded-[2rem] text-lg font-black transition-all bg-white/60 text-slate-600 hover:bg-white shadow-sm border border-slate-200 active:scale-95 line-clamp-1">
+        <button onClick={onReset} className="w-full py-4 rounded-[2rem] text-lg font-black transition-all bg-white/60 text-slate-600 hover:bg-white shadow-sm border border-slate-200 active:scale-95">
           처음부터 다시하기 🔄
         </button>
       </div>

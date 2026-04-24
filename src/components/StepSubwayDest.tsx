@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { Slot } from './Slot';
@@ -21,8 +21,14 @@ export default function StepSubwayDest({ lineId, startStation, onComplete }: Ste
   const [isRollingDest, setIsRollingDest] = useState(false);
   const [destSpinName, setDestSpinName] = useState('출발!');
   const [result, setResult] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const currentLineData = SUBWAY_DATA[lineId];
+  const cancelled = useRef(false);
+  useEffect(() => {
+    cancelled.current = false;
+    return () => { cancelled.current = true; };
+  }, []);
 
   const getValidStations = (targetDir: string) => {
     const startIndex = currentLineData.stations.indexOf(startStation);
@@ -57,6 +63,7 @@ export default function StepSubwayDest({ lineId, startStation, onComplete }: Ste
     const durationMs = 3000;
 
     const runTick = () => {
+      if (cancelled.current) return;
       let now = performance.now();
       let elapsed = now - startTime;
       if (elapsed >= durationMs) {
@@ -86,9 +93,10 @@ export default function StepSubwayDest({ lineId, startStation, onComplete }: Ste
     if (isRollingDest) return;
     const validStations = getValidStations(direction);
     if(validStations.length === 0) {
-      alert("해당 방향으로는 더 이상 갈 수 있는 역이 없습니다!");
+      setErrorMsg("해당 방향으로는 더 이상 갈 수 있는 역이 없습니다!");
       return;
     }
+    setErrorMsg('');
 
     playThud();
     setIsRollingDest(true);
@@ -100,6 +108,7 @@ export default function StepSubwayDest({ lineId, startStation, onComplete }: Ste
     const durationMs = 6000;
 
     const runTick = () => {
+      if (cancelled.current) return;
       let now = performance.now();
       let elapsed = now - startTime;
       if (elapsed >= durationMs) {
@@ -179,6 +188,10 @@ export default function StepSubwayDest({ lineId, startStation, onComplete }: Ste
           </AnimatePresence>
         </div>
       </div>
+
+      {errorMsg && (
+        <p className="text-center text-sm font-bold text-rose-500 bg-rose-50 px-4 py-2 rounded-xl border border-rose-100">{errorMsg}</p>
+      )}
 
       {phase === 'direction' && !isDirSelected && (
         <button

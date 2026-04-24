@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { Slot } from './Slot';
@@ -20,6 +20,11 @@ export default function StepSubwayLine({ onComplete }: StepSubwayLineProps) {
   const [startStation, setStartStation] = useState<string>('');
 
   const lines = Object.keys(SUBWAY_DATA); // '1' to '9'
+  const cancelled = useRef(false);
+  useEffect(() => {
+    cancelled.current = false;
+    return () => { cancelled.current = true; };
+  }, []);
 
   const startRollingLine = () => {
     if (isRollingLine) return;
@@ -36,6 +41,7 @@ export default function StepSubwayLine({ onComplete }: StepSubwayLineProps) {
     const durationMs = 4000;
 
     const runTick = () => {
+      if (cancelled.current) return;
       let now = performance.now();
       let elapsed = now - startTime;
       if (elapsed >= durationMs) {

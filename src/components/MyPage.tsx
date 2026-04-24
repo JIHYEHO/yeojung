@@ -26,6 +26,7 @@ export default function MyPage({ user, onStartJourney }: MyPageProps) {
   const [myHistory, setMyHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMission, setSelectedMission] = useState<HistoryItem | null>(null);
+  const [deleteError, setDeleteError] = useState('');
 
   useEffect(() => {
     const fetchMyHistory = async () => {
@@ -91,7 +92,7 @@ export default function MyPage({ user, onStartJourney }: MyPageProps) {
       setMyHistory(prev => prev.filter(item => item.id !== id));
     } catch (err) {
       console.error('Delete error:', err);
-      alert('삭제 중 오류가 발생했습니다.');
+      setDeleteError('삭제 중 오류가 발생했습니다.');
     }
   };
 
@@ -131,6 +132,10 @@ export default function MyPage({ user, onStartJourney }: MyPageProps) {
           <button onClick={() => setShowAuth(true)} className="text-[10px] font-black text-rose-500 bg-rose-50 px-3 py-1.5 rounded-full hover:bg-rose-100 transition-colors">로그인하기</button>
         )}
       </div>
+
+      {deleteError && (
+        <p className="text-center text-sm font-bold text-rose-500 bg-rose-50 px-4 py-2 rounded-xl border border-rose-100 mb-4">{deleteError}</p>
+      )}
 
       <div className="bg-white/60 backdrop-blur-md p-6 rounded-[2rem] border border-white/80 shadow-sm mb-8">
         <div className="flex justify-between items-center mb-4">

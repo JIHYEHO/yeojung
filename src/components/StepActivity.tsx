@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { Slot } from './Slot';
@@ -20,6 +20,11 @@ export default function StepActivity({ onComplete, previousResults }: StepActivi
   const [isRolling, setIsRolling] = useState(false);
   const [activity, setActivity] = useState('코인노래방');
   const [result, setResult] = useState<string | null>(null);
+  const cancelled = useRef(false);
+  useEffect(() => {
+    cancelled.current = false;
+    return () => { cancelled.current = true; };
+  }, []);
 
   const startRolling = () => {
     if (isRolling) return;
@@ -35,9 +40,10 @@ export default function StepActivity({ onComplete, previousResults }: StepActivi
     const durationMs = 6000; 
 
     const runTick = () => {
+      if (cancelled.current) return;
       let now = performance.now();
       let elapsed = now - startTime;
-      
+
       if (elapsed >= durationMs) {
         setActivity(finalActivity);
         setIsRolling(false);
