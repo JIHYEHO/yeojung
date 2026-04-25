@@ -17,7 +17,7 @@ export default function TabBar({ currentTab, onTabChange, isRouletteActive }: Ta
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 w-full bg-white/70 backdrop-blur-3xl border-t border-rose-100/50 px-6 py-4 flex justify-between items-center z-[100] shadow-[0_-5px_30px_rgba(251,113,133,0.08)]">
+    <div className="fixed bottom-0 left-0 w-full bg-white border-t border-slate-100 px-6 py-3 flex justify-between items-center z-[100]">
       {tabs.map((tab) => {
         const isActive = currentTab === tab.id;
         const showActiveDot = tab.id === 'roulette' && isRouletteActive;
@@ -26,23 +26,23 @@ export default function TabBar({ currentTab, onTabChange, isRouletteActive }: Ta
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
-            className={`relative flex flex-col items-center gap-1.5 transition-all outline-none group ${isActive ? 'animate-jelly' : ''}`}
+            className="relative flex flex-col items-center gap-1 outline-none"
           >
             <div className={`
-              w-12 h-10 rounded-2xl flex items-center justify-center text-xl transition-all
-              ${isActive ? 'bg-gradient-to-tr from-rose-400 to-pink-400 text-white shadow-[0_5px_15px_rgba(251,113,133,0.4)]' : 'text-slate-400 group-hover:bg-rose-50 group-hover:text-rose-400'}
+              w-11 h-9 rounded-xl flex items-center justify-center text-xl transition-all
+              ${isActive ? 'bg-rose-500 text-white' : 'text-slate-400'}
             `}>
               {tab.icon}
               {showActiveDot && !isActive && (
-                <motion.div 
-                  layoutId="active-dot" 
-                  className="absolute top-0 right-0 w-2.5 h-2.5 bg-pink-400 rounded-full border-2 border-white shadow-sm"
+                <motion.div
+                  layoutId="active-dot"
+                  className="absolute top-0 right-0 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white"
                   animate={{ scale: [1, 1.2, 1] }}
                   transition={{ repeat: Infinity, duration: 1.5 }}
                 />
               )}
             </div>
-            <span className={`text-[10px] font-black ${isActive ? 'text-rose-500' : 'text-slate-400'}`}>
+            <span className={`text-[10px] font-bold ${isActive ? 'text-rose-500' : 'text-slate-400'}`}>
               {tab.label}
             </span>
           </button>

@@ -8,7 +8,7 @@ interface StepPhotoCaptureProps {
 }
 
 const compressImage = (file: File): Promise<string> =>
-  new Promise((resolve) => {
+  new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
     img.onload = () => {
@@ -21,6 +21,10 @@ const compressImage = (file: File): Promise<string> =>
       URL.revokeObjectURL(url);
       resolve(canvas.toDataURL('image/jpeg', 0.82));
     };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('이미지를 불러올 수 없어요.'));
+    };
     img.src = url;
   });
 
@@ -32,9 +36,14 @@ export default function StepPhotoCapture({ label, badge, onComplete }: StepPhoto
     const file = e.target.files?.[0];
     if (!file) return;
     setLoading(true);
-    const compressed = await compressImage(file);
-    setPhoto(compressed);
-    setLoading(false);
+    try {
+      const compressed = await compressImage(file);
+      setPhoto(compressed);
+    } catch {
+      // 이미지 로드 실패 시 조용히 무시 (파일 선택 취소와 동일 처리)
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -44,16 +53,16 @@ export default function StepPhotoCapture({ label, badge, onComplete }: StepPhoto
       exit={{ opacity: 0, x: 50 }}
       className="space-y-6"
     >
-      <div className="bg-white/40 backdrop-blur-2xl p-6 rounded-[2.5rem] border border-white/60 shadow-xl text-center space-y-4">
-        <span className="inline-block bg-rose-100 text-rose-500 px-4 py-1.5 rounded-full font-black text-xs tracking-widest border border-rose-200">
+      <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm text-center space-y-4">
+        <span className="inline-block bg-slate-100 text-slate-600 px-4 py-1.5 rounded-full font-black text-xs tracking-widest border border-slate-200">
           📸 인증샷 미션
         </span>
         <p className="text-2xl font-black text-slate-800 leading-snug">{label}</p>
-        <span className="inline-block bg-white/80 text-slate-500 px-3 py-1 rounded-full text-xs font-bold border border-white/60 shadow-sm">
+        <span className="inline-block bg-slate-50 text-slate-500 px-3 py-1 rounded-full text-xs font-bold border border-slate-200">
           {badge}
         </span>
 
-        <label className={`block w-full aspect-square rounded-3xl overflow-hidden cursor-pointer transition-all mt-2 ${photo ? 'border-4 border-rose-300' : 'bg-white/60 border-2 border-dashed border-rose-200 hover:bg-white/80'}`}>
+        <label className={`block w-full aspect-square rounded-2xl overflow-hidden cursor-pointer transition-all mt-2 ${photo ? 'border-4 border-rose-400' : 'bg-slate-50 border-2 border-dashed border-slate-200 hover:bg-white'}`}>
           {loading ? (
             <div className="w-full h-full flex items-center justify-center">
               <div className="w-8 h-8 border-4 border-rose-200 border-t-rose-500 rounded-full animate-spin" />
@@ -85,7 +94,7 @@ export default function StepPhotoCapture({ label, badge, onComplete }: StepPhoto
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           onClick={() => onComplete(photo)}
-          className="w-full py-5 rounded-[2rem] text-xl font-black bg-gradient-to-r from-rose-400 to-pink-500 text-white shadow-[0_10px_20px_-10px_rgba(251,113,133,0.6)] active:scale-95 transition-transform"
+          className="w-full py-5 rounded-2xl text-xl font-black bg-rose-500 text-white active:scale-95 transition-transform"
         >
           인증 완료! 다음으로 👉
         </motion.button>

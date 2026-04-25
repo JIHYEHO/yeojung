@@ -6,12 +6,13 @@ import { initAudio, playTick, playThud, playTada } from '../utils/audio';
 
 interface StepPaymentProps {
   onComplete: (payer: string) => void;
+  onParticipantsChange: (participants: string[]) => void;
+  participants: string[];
   previousResults: { station?: string; menu?: string; activity?: string; };
-  context: 'menu' | 'activity'; // 밥값인지 놀거리인지 구분
+  context: 'menu' | 'activity';
 }
 
-export default function StepPayment({ onComplete, previousResults, context }: StepPaymentProps) {
-  const [participants, setParticipants] = useState<string[]>(['나', '너']);
+export default function StepPayment({ onComplete, onParticipantsChange, participants, previousResults, context }: StepPaymentProps) {
   const [newParticipant, setNewParticipant] = useState('');
   
   const [isRolling, setIsRolling] = useState(false);
@@ -26,13 +27,13 @@ export default function StepPayment({ onComplete, previousResults, context }: St
   const addParticipant = (e: React.FormEvent) => {
     e.preventDefault();
     if (newParticipant.trim() && !participants.includes(newParticipant.trim())) {
-      setParticipants([...participants, newParticipant.trim()]);
+      onParticipantsChange([...participants, newParticipant.trim()]);
       setNewParticipant('');
     }
   };
 
   const removeParticipant = (index: number) => {
-    setParticipants(participants.filter((_, i) => i !== index));
+    onParticipantsChange(participants.filter((_, i) => i !== index));
   };
 
   const startRolling = () => {
@@ -96,10 +97,10 @@ export default function StepPayment({ onComplete, previousResults, context }: St
 
   return (
     <motion.div initial={{opacity:0, x: -50}} animate={{opacity:1, x:0}} exit={{opacity:0, x:50}} className="space-y-6">
-      <div className="bg-white/40 backdrop-blur-2xl p-6 rounded-[2.5rem] border border-white/60 space-y-6 shadow-xl text-center">
+      <div className="bg-white p-6 rounded-2xl border border-slate-100 space-y-6 shadow-sm text-center">
         <div className="flex flex-col items-center gap-2">
-          {previousResults.station && <p className="text-slate-500 font-bold bg-white/50 px-3 py-1 rounded-full shadow-sm text-xs">📍 {previousResults.station}역</p>}
-          {targetItem && <p className="text-slate-500 font-bold bg-white/50 px-3 py-1 rounded-full shadow-sm text-xs">{targetEmoji} {targetItem}</p>}
+          {previousResults.station && <p className="text-slate-500 font-bold bg-slate-50 px-3 py-1 rounded-full text-xs border border-slate-100">📍 {previousResults.station}역</p>}
+          {targetItem && <p className="text-slate-500 font-bold bg-slate-50 px-3 py-1 rounded-full text-xs border border-slate-100">{targetEmoji} {targetItem}</p>}
         </div>
 
         {!isRolling && !result && (
@@ -142,7 +143,7 @@ export default function StepPayment({ onComplete, previousResults, context }: St
         <button
           onClick={startRolling}
           disabled={isRolling || participants.length < 2}
-          className={`w-full py-5 rounded-[2rem] text-xl font-black transition-all transform active:scale-95 shadow-[0_10px_20px_-10px_rgba(16,185,129,0.5)] ${isRolling || participants.length < 2 ? 'bg-white/60 text-slate-400 shadow-none border border-white/50' : 'bg-gradient-to-r from-emerald-400 to-teal-500 text-white hover:shadow-emerald-400/40 cursor-pointer border border-white/20'}`}
+          className={`w-full py-5 rounded-2xl text-xl font-black transition-all active:scale-95 ${isRolling || participants.length < 2 ? 'bg-slate-100 text-slate-400' : 'bg-slate-900 text-white'}`}
         >
           {isRolling ? '숨 막히는 추첨 중... 😱' : participants.length < 2 ? '후보를 2명 이상 적어주세요!' : `${isMenu ? '밥값' : '놀거리'} 결제자 추첨! 💸`}
         </button>
@@ -152,7 +153,7 @@ export default function StepPayment({ onComplete, previousResults, context }: St
         {result && !isRolling && (
           <motion.div initial={{scale:0.8,opacity:0}} animate={{scale:1,opacity:1}} 
             transition={{ type: "spring", damping: 15, stiffness: 100 }}
-            className="p-8 bg-white/70 backdrop-blur-3xl rounded-[2.5rem] text-center shadow-2xl border border-white/90">
+            className="p-8 bg-white rounded-2xl text-center shadow-sm border border-slate-100">
              <h3 className="text-3xl sm:text-4xl font-black text-emerald-500 tracking-tighter drop-shadow-sm mb-2"><span className="text-xl sm:text-2xl text-slate-400 font-bold leading-normal">{isMenu ? '식사비는 ' : '놀거리는 '}</span>{result}<span className="text-xl sm:text-2xl text-slate-400 font-bold leading-normal">님이!</span></h3>
              <button onClick={() => onComplete(result)} className="mt-6 w-full py-4 rounded-xl font-bold bg-slate-800 text-white hover:bg-slate-700 shadow-lg active:scale-95 transition-transform">{nextButtonText}</button>
              {isMenu ? (

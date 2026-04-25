@@ -13,10 +13,12 @@ import StepActivity from './components/StepActivity';
 import Summary from './components/Summary';
 import StepHistory from './components/StepHistory';
 import MyPage from './components/MyPage';
+import Onboarding from './components/Onboarding';
 import { AnimatePresence, motion } from 'framer-motion';
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
+  const [nickname, setNickname] = useState<string>(() => localStorage.getItem('yeojung_nickname') || '');
   const [currentTab, setCurrentTab] = useState<TabType>('home');
   const [step, setStep] = useState(1);
 
@@ -48,6 +50,9 @@ export default function App() {
     activity?: string;
   }>({});
 
+  const [participants, setParticipants] = useState<string[]>(['나', '너']);
+  const [savedHistoryId, setSavedHistoryId] = useState<string | null>(null);
+
   const handleNext = (updates: Partial<typeof results>) => {
     setResults(prev => ({ ...prev, ...updates }));
     setStep(s => s + 1);
@@ -62,14 +67,16 @@ export default function App() {
     setStep(1);
     setResults({});
     setPhotos({});
+    setParticipants(['나', '너']);
+    setSavedHistoryId(null);
     setCurrentTab('home');
   };
 
   const renderRouletteContent = () => {
     return (
       <div className="w-full flex flex-col items-center">
-        <header className="w-full max-w-md mt-4 sm:mt-8 mb-6 sm:mb-8 text-center relative z-10 transition-all">
-          <h1 className="text-[10px] sm:text-[11px] font-black text-rose-400 tracking-[0.3em] uppercase mb-6 bg-white/70 inline-block px-5 py-2 rounded-full shadow-sm backdrop-blur-md border border-rose-100">💝 여정 뽑는 중</h1>
+        <header className="w-full max-w-md mt-4 sm:mt-8 mb-6 sm:mb-8 text-center">
+          <h1 className="text-[10px] sm:text-[11px] font-black text-rose-400 tracking-[0.3em] uppercase mb-6 inline-block">💝 여정 뽑는 중</h1>
           <div className="relative h-16 sm:h-20 w-full flex justify-center items-center">
             <AnimatePresence mode="wait">
               {step === 1  && <motion.h2 key="1"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">어느 <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-pink-500">노선 탈까?</span> 🚃</motion.h2>}
@@ -86,7 +93,7 @@ export default function App() {
           </div>
         </header>
 
-        <main className="w-full max-w-md relative z-10 perspective-1000">
+        <main className="w-full max-w-md perspective-1000">
           <AnimatePresence mode="wait">
             {step === 1 && (
               <StepSubwayLine
@@ -115,7 +122,7 @@ export default function App() {
 
             {step === 4 && <StepMenu key="step4" onComplete={(val) => handleNext({ menu: val })} previousResult={results.station} />}
 
-            {step === 5 && <StepPayment key="step5" context="menu" onComplete={(val) => handleNext({ menuPayer: val })} previousResults={results} />}
+            {step === 5 && <StepPayment key="step5" context="menu" participants={participants} onParticipantsChange={setParticipants} onComplete={(val) => handleNext({ menuPayer: val })} previousResults={results} />}
 
             {step === 6 && (
               <StepPhotoCapture
@@ -128,7 +135,7 @@ export default function App() {
 
             {step === 7 && <StepActivity key="step7" onComplete={(val) => handleNext({ activity: val })} previousResults={results} />}
 
-            {step === 8 && <StepPayment key="step8" context="activity" onComplete={(val) => handleNext({ activityPayer: val })} previousResults={results} />}
+            {step === 8 && <StepPayment key="step8" context="activity" participants={participants} onParticipantsChange={setParticipants} onComplete={(val) => handleNext({ activityPayer: val })} previousResults={results} />}
 
             {step === 9 && (
               <StepPhotoCapture
@@ -139,28 +146,22 @@ export default function App() {
               />
             )}
 
-            {step === 10 && <Summary key="summary" results={results} photos={photos} user={user} onReset={resetRoulette} />}
+            {step === 10 && <Summary key="summary" results={results} photos={photos} user={user} onReset={resetRoulette} savedHistoryId={savedHistoryId} onHistorySaved={setSavedHistoryId} />}
           </AnimatePresence>
         </main>
       </div>
     );
   };
 
-  return (
-    <div className="min-h-[100dvh] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-rose-50 via-pink-50 to-peach-100 text-slate-800 p-4 sm:p-6 font-sans flex flex-col items-center selection:bg-pink-300/40 relative pb-32 overflow-x-hidden">
-      
-      {/* 둥둥 떠다니는 배경 하트 효과 */}
-      <div className="fixed top-10 left-10 text-4xl opacity-20 animate-float pointer-events-none" style={{ animationDelay: '0s' }}>☁️</div>
-      <div className="fixed top-32 right-10 text-3xl opacity-20 animate-float pointer-events-none" style={{ animationDelay: '1s' }}>💖</div>
-      <div className="fixed bottom-40 left-20 text-2xl opacity-20 animate-float pointer-events-none" style={{ animationDelay: '2s' }}>✨</div>
-      <div className="fixed top-1/2 right-20 text-4xl opacity-20 animate-float pointer-events-none" style={{ animationDelay: '1.5s' }}>🌸</div>
+  if (!nickname) {
+    return <Onboarding onComplete={setNickname} />;
+  }
 
-      {/* 부드러운 빛 효과 */}
-      <div className="fixed top-[-10%] left-[-10%] w-[30rem] h-[30rem] bg-rose-200/40 rounded-full mix-blend-multiply filter blur-[100px] pointer-events-none z-0 animate-pulse" style={{ animationDuration: '4s' }}></div>
-      <div className="fixed bottom-[-10%] right-[-10%] w-[30rem] h-[30rem] bg-pink-200/40 rounded-full mix-blend-multiply filter blur-[100px] pointer-events-none z-0 animate-pulse" style={{ animationDuration: '6s' }}></div>
+  return (
+    <div className="min-h-[100dvh] bg-[#FAFAF7] text-slate-800 p-4 sm:p-6 font-sans flex flex-col items-center selection:bg-rose-100 relative pb-32 overflow-x-hidden">
 
       {currentTab === 'home' && (
-        <div className="w-full max-w-md relative z-10 pt-8">
+        <div className="w-full max-w-md pt-8">
           <header className="text-center mb-10">
              <h1 className="text-[12px] font-black text-rose-400 tracking-[0.4em] uppercase mb-2">Love Journey</h1>
              <p className="text-3xl font-black text-slate-800 tracking-tighter">우리 어디갈까? 💘</p>
@@ -176,13 +177,13 @@ export default function App() {
       {currentTab === 'roulette' && renderRouletteContent()}
 
       {currentTab === 'feed' && (
-        <div className="w-full max-w-md relative z-10">
+        <div className="w-full max-w-md">
           <StepHistory onClose={() => setCurrentTab('home')} />
         </div>
       )}
 
       {currentTab === 'mypage' && (
-        <div className="w-full max-w-md relative z-10">
+        <div className="w-full max-w-md">
           <MyPage user={user} onStartJourney={() => setCurrentTab('roulette')} />
         </div>
       )}

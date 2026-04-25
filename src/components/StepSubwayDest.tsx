@@ -140,13 +140,13 @@ export default function StepSubwayDest({ lineId, startStation, onComplete }: Ste
 
   return (
     <motion.div initial={{opacity:0, x: -50}} animate={{opacity:1, x:0}} exit={{opacity:0, x:50}} className="space-y-6">
-      <div className="bg-white/40 backdrop-blur-2xl p-6 rounded-[2.5rem] border border-white/60 space-y-6 shadow-xl relative overflow-hidden text-center">
+      <div className="bg-white p-6 rounded-2xl border border-slate-100 space-y-6 shadow-sm text-center">
         
         <div className="flex flex-col items-center gap-2">
-          <p className="text-slate-500 font-bold bg-white/50 px-3 py-1 rounded-full shadow-sm text-xs border border-white/80">📍 {currentLineData.name} {startStation}역 출발</p>
+          <p className="text-slate-500 font-bold bg-slate-50 px-3 py-1 rounded-full text-xs border border-slate-200">📍 {currentLineData.name} {startStation}역 출발</p>
         </div>
 
-        <div className="bg-indigo-100 text-indigo-600 px-4 py-1.5 rounded-full font-black text-xs sm:text-sm tracking-widest mx-auto shadow-sm border border-indigo-200 w-max">STEP 2. 방향 & 목적지</div>
+        <div className="bg-slate-100 text-slate-600 px-4 py-1.5 rounded-full font-black text-xs sm:text-sm tracking-widest mx-auto border border-slate-200 w-max">STEP 2. 방향 & 목적지</div>
         
 
         
@@ -197,7 +197,7 @@ export default function StepSubwayDest({ lineId, startStation, onComplete }: Ste
         <button
           onClick={startRollingDir}
           disabled={isRollingDir}
-          className={`w-full py-5 rounded-[2rem] text-xl font-black transition-all ${isRollingDir ? 'bg-white/60 text-slate-400 shadow-none' : 'bg-gradient-to-r from-blue-400 to-indigo-500 text-white shadow-lg active:scale-95'}`}
+          className={`w-full py-5 rounded-2xl text-xl font-black transition-all active:scale-95 ${isRollingDir ? 'bg-slate-100 text-slate-400' : 'bg-slate-900 text-white'}`}
         >
           {isRollingDir ? '방향 갈림길 선택 중... 🧭' : '먼저 방향부터 정하자! 🧭'}
         </button>
@@ -207,7 +207,7 @@ export default function StepSubwayDest({ lineId, startStation, onComplete }: Ste
         <button
           onClick={startRollingDest}
           disabled={isRollingDest}
-          className={`w-full py-5 rounded-[2rem] text-xl font-black transition-all ${isRollingDest ? 'bg-white/60 text-slate-400 shadow-none' : 'bg-gradient-to-r from-violet-500 to-purple-500 text-white shadow-lg active:scale-95'}`}
+          className={`w-full py-5 rounded-2xl text-xl font-black transition-all active:scale-95 ${isRollingDest ? 'bg-slate-100 text-slate-400' : 'bg-slate-900 text-white'}`}
         >
           {isRollingDest ? '역 탐색 중... 🧭' : '가보자고! 어느 역에 내릴까? 🚀'}
         </button>
@@ -217,7 +217,7 @@ export default function StepSubwayDest({ lineId, startStation, onComplete }: Ste
         {result && phase === 'done' && (
           <motion.div initial={{scale:0.8,opacity:0}} animate={{scale:1,opacity:1}} 
             transition={{ type: "spring", damping: 15, stiffness: 100 }}
-            className="p-8 bg-white/70 backdrop-blur-3xl rounded-[2.5rem] text-center shadow-2xl border border-white/90">
+            className="p-8 bg-white rounded-2xl text-center shadow-sm border border-slate-100">
              <h3 className="text-3xl sm:text-4xl font-black tracking-tighter drop-shadow-sm mb-2" style={{color: currentLineData.color}}>{result}역 <span className="text-xl sm:text-2xl text-slate-400 font-bold leading-normal">당첨!</span></h3>
              <button onClick={() => onComplete(result)} className="mt-6 w-full py-4 rounded-xl font-bold bg-slate-800 text-white hover:bg-slate-700 shadow-lg active:scale-95 transition-transform">메뉴 정하러 가기 👉</button>
           </motion.div>

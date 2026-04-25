@@ -80,11 +80,11 @@ export default function StepSubwayLine({ onComplete }: StepSubwayLineProps) {
 
   return (
     <motion.div initial={{opacity:0, x: -50}} animate={{opacity:1, x:0}} exit={{opacity:0, x:50}} className="space-y-6">
-      <div className="bg-white/40 backdrop-blur-2xl p-6 rounded-[2.5rem] border border-white/60 shadow-xl relative overflow-hidden">
+      <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden">
         <AnimatePresence mode="wait">
           {phase === 'line' ? (
             <motion.div key="line" initial={{opacity:0, x:-20}} animate={{opacity:1, x:0}} exit={{opacity:0, x:20}} className="flex flex-col items-center w-full">
-              <div className="bg-indigo-100 text-indigo-600 px-4 py-1.5 rounded-full font-black text-xs sm:text-sm tracking-widest mb-6 shadow-sm border border-indigo-200">STEP 1. 노선 추첨</div>
+              <div className="bg-slate-100 text-slate-600 px-4 py-1.5 rounded-full font-black text-xs sm:text-sm tracking-widest mb-6 border border-slate-200">STEP 1. 노선 추첨</div>
               <Slot 
                 title="LINE" 
                 value={`${lineStr}호선`} 
@@ -96,7 +96,7 @@ export default function StepSubwayLine({ onComplete }: StepSubwayLineProps) {
             </motion.div>
           ) : phase === 'stationGuide' ? (
             <motion.div key="stationGuide" initial={{opacity:0, x:-20}} animate={{opacity:1, x:0}} exit={{opacity:0, x:20}} className="flex flex-col items-center w-full min-h-[200px] justify-center">
-              <div className="bg-indigo-100 text-indigo-600 px-4 py-1.5 rounded-full font-black text-xs sm:text-sm tracking-widest mb-6 shadow-sm border border-indigo-200">STAGE 1-1. 안내</div>
+              <div className="bg-slate-100 text-slate-600 px-4 py-1.5 rounded-full font-black text-xs sm:text-sm tracking-widest mb-6 border border-slate-200">STAGE 1-1. 안내</div>
               <div className="bg-white/80 text-slate-700 w-full px-5 py-8 rounded-2xl tracking-wide shadow-sm border border-slate-200 text-center leading-relaxed">
                 <span className="text-xl inline-block mb-1 font-black drop-shadow-sm" style={{color: currentLineData.color}}>{lineStr}호선 탑승 준비!</span><br/>
                 <span className="text-slate-700 font-black text-base">어디서 만날까요?</span>
@@ -109,7 +109,7 @@ export default function StepSubwayLine({ onComplete }: StepSubwayLineProps) {
             </motion.div>
           ) : (
             <motion.div key="stationSelect" initial={{opacity:0, x:-20}} animate={{opacity:1, x:0}} exit={{opacity:0, x:20}} className="flex flex-col items-center w-full">
-              <div className="bg-indigo-100 text-indigo-600 px-4 py-1.5 rounded-full font-black text-xs sm:text-sm tracking-widest mb-6 shadow-sm border border-indigo-200">STAGE 1-2. 출발역 선택</div>
+              <div className="bg-slate-100 text-slate-600 px-4 py-1.5 rounded-full font-black text-xs sm:text-sm tracking-widest mb-6 border border-slate-200">STAGE 1-2. 출발역 선택</div>
               <div className="mb-4 text-center">
                 <span className="text-sm font-bold text-slate-400">기준이 되는 역을 골라주세요</span>
               </div>
@@ -129,7 +129,7 @@ export default function StepSubwayLine({ onComplete }: StepSubwayLineProps) {
         {result && phase === 'line' && (
           <motion.div initial={{scale:0.8,opacity:0}} animate={{scale:1,opacity:1}} 
             transition={{ type: "spring", damping: 15, stiffness: 100 }}
-            className="p-8 bg-white/70 backdrop-blur-3xl rounded-[2.5rem] text-center shadow-2xl border border-white/90">
+            className="p-8 bg-white rounded-2xl text-center shadow-sm border border-slate-100">
              <h3 className="text-3xl sm:text-4xl font-black tracking-tighter drop-shadow-sm mb-2" style={{color: currentLineData.color}}>{result}호선 <span className="text-xl sm:text-2xl text-slate-400 font-bold leading-normal">당첨!</span></h3>
              <button onClick={() => setPhase('stationGuide')} className="mt-6 w-full py-4 rounded-xl font-bold bg-slate-800 text-white hover:bg-slate-700 shadow-lg active:scale-95 transition-transform">출발 정보 확인 👉</button>
           </motion.div>
@@ -140,7 +140,7 @@ export default function StepSubwayLine({ onComplete }: StepSubwayLineProps) {
         <button
           onClick={startRollingLine}
           disabled={isRollingLine}
-          className={`w-full py-5 rounded-[2rem] text-xl font-black transition-all transform active:scale-95 shadow-[0_10px_20px_-10px_rgba(59,130,246,0.5)] ${isRollingLine ? 'bg-white/60 text-slate-400 border border-white/50 shadow-none' : 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white border border-white/20'}`}
+          className={`w-full py-5 rounded-2xl text-xl font-black transition-all active:scale-95 ${isRollingLine ? 'bg-slate-100 text-slate-400' : 'bg-slate-900 text-white'}`}
         >
           {isRollingLine ? '노선 탐색 중... 🚇' : '어느 호선 탈까? 🎲'}
         </button>
@@ -150,7 +150,7 @@ export default function StepSubwayLine({ onComplete }: StepSubwayLineProps) {
         <motion.button
           initial={{opacity:0, y:20}} animate={{opacity:1, y:0}}
           onClick={() => setPhase('stationSelect')}
-          className="w-full py-5 rounded-[2rem] text-xl font-black transition-all transform active:scale-95 shadow-[0_10px_20px_-10px_rgba(79,70,229,0.5)] bg-gradient-to-r from-indigo-500 to-blue-600 text-white"
+          className="w-full py-5 rounded-2xl text-xl font-black transition-all active:scale-95 bg-slate-900 text-white"
         >
           알겠어요! 📍
         </motion.button>
@@ -160,7 +160,7 @@ export default function StepSubwayLine({ onComplete }: StepSubwayLineProps) {
         <motion.button
           initial={{opacity:0, y:20}} animate={{opacity:1, y:0}}
           onClick={() => onComplete(selectedLineId!, startStation)}
-          className="w-full py-5 rounded-[2rem] text-xl font-black transition-all transform active:scale-95 shadow-[0_10px_20px_-10px_rgba(30,41,59,0.5)] bg-slate-800 text-white hover:bg-slate-700"
+          className="w-full py-5 rounded-2xl text-xl font-black transition-all active:scale-95 bg-slate-900 text-white"
         >
           여기서 출발 확정 👉
         </motion.button>
