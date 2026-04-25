@@ -144,7 +144,7 @@ export default function PhotoMission({ journeyId, lineId, station, menu, activit
       className="fixed inset-0 z-[210] flex flex-col bg-slate-900/98 backdrop-blur-3xl overflow-y-auto"
     >
       <div className="flex items-center justify-between p-6 shrink-0">
-        <h3 className="text-xl font-black text-white">📸 인생네컷 만들기</h3>
+        <h3 className="text-xl font-black text-white">📸 뜻밖의 네컷 만들기</h3>
         <button onClick={onClose} className="w-10 h-10 bg-white/10 rounded-full text-white flex justify-center items-center">✕</button>
       </div>
 

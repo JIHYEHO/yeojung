@@ -18,7 +18,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
-  const [nickname, setNickname] = useState<string>(() => localStorage.getItem('yeojung_nickname') || '');
+  const [visited, setVisited] = useState<boolean>(() => localStorage.getItem('yeojung_visited') !== null);
   const [currentTab, setCurrentTab] = useState<TabType>('home');
   const [step, setStep] = useState(1);
 
@@ -79,16 +79,16 @@ export default function App() {
           <h1 className="text-[10px] sm:text-[11px] font-black text-rose-400 tracking-[0.3em] uppercase mb-6 inline-block">💝 여정 뽑는 중</h1>
           <div className="relative h-16 sm:h-20 w-full flex justify-center items-center">
             <AnimatePresence mode="wait">
-              {step === 1  && <motion.h2 key="1"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">어느 <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-pink-500">노선 탈까?</span> 🚃</motion.h2>}
-              {step === 2  && <motion.h2 key="2"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">어느 <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-400">역에 내릴까?</span> 🌸</motion.h2>}
-              {step === 3  && <motion.h2 key="3"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">역에서 <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-pink-500">인증샷!</span> 📸</motion.h2>}
-              {step === 4  && <motion.h2 key="4"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">가서 <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-rose-400">뭐 먹을까?</span> 🍰</motion.h2>}
-              {step === 5  && <motion.h2 key="5"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">밥값은 <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-pink-500">누가 쏴?</span> 💕</motion.h2>}
-              {step === 6  && <motion.h2 key="6"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">밥 먹은 <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-pink-500">인증샷!</span> 📸</motion.h2>}
-              {step === 7  && <motion.h2 key="7"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">밥 먹고 <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-pink-400">뭐 할까?</span> 🧸</motion.h2>}
-              {step === 8  && <motion.h2 key="8"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">놀거리는 <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-400">누가 쏴?</span> 💝</motion.h2>}
-              {step === 9  && <motion.h2 key="9"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">놀거리 <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-pink-400">인증샷!</span> 📸</motion.h2>}
-              {step === 10 && <motion.h2 key="10" initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">달달한 <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-pink-500">코스 완성!</span> 💖</motion.h2>}
+              {step === 1  && <motion.h2 key="1"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">어느 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D6D] to-[#8B5CF6]">노선 탈까?</span> 🚃</motion.h2>}
+              {step === 2  && <motion.h2 key="2"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">어느 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D6D] to-[#8B5CF6]">역에 내릴까?</span> 🌸</motion.h2>}
+              {step === 3  && <motion.h2 key="3"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">역에서 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D6D] to-[#8B5CF6]">인증샷!</span> 📸</motion.h2>}
+              {step === 4  && <motion.h2 key="4"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">가서 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D6D] to-[#FF8FA3]">뭐 먹을까?</span> 🍰</motion.h2>}
+              {step === 5  && <motion.h2 key="5"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">밥값은 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D6D] to-[#8B5CF6]">누가 쏴?</span> 💕</motion.h2>}
+              {step === 6  && <motion.h2 key="6"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">밥 먹은 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D6D] to-[#8B5CF6]">인증샷!</span> 📸</motion.h2>}
+              {step === 7  && <motion.h2 key="7"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">밥 먹고 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8B5CF6] to-[#FF4D6D]">뭐 할까?</span> 🧸</motion.h2>}
+              {step === 8  && <motion.h2 key="8"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">놀거리는 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8B5CF6] to-[#FF4D6D]">누가 쏴?</span> 💝</motion.h2>}
+              {step === 9  && <motion.h2 key="9"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">놀거리 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8B5CF6] to-[#FF4D6D]">인증샷!</span> 📸</motion.h2>}
+              {step === 10 && <motion.h2 key="10" initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">달달한 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D6D] to-[#8B5CF6]">코스 완성!</span> 💖</motion.h2>}
             </AnimatePresence>
           </div>
         </header>
@@ -153,8 +153,12 @@ export default function App() {
     );
   };
 
-  if (!nickname) {
-    return <Onboarding onComplete={setNickname} />;
+  if (!visited) {
+    return <Onboarding onComplete={(n) => {
+      localStorage.setItem('yeojung_visited', '1');
+      if (n) localStorage.setItem('yeojung_nickname', n);
+      setVisited(true);
+    }} />;
   }
 
   return (

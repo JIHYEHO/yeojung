@@ -31,10 +31,10 @@ export default function Home({ currentStep, onStart, onShowFeed }: HomeProps) {
             <span className="text-[10px] font-bold text-rose-300 block tracking-tighter uppercase font-mono">Subway</span>
             <span className="text-xs font-black text-rose-600">두근두근 전철역</span>
           </div>
-          <div className="bg-rose-50 p-4 rounded-2xl border border-rose-100">
+          <div className="bg-violet-50 p-4 rounded-2xl border border-violet-100">
             <span className="text-2xl block mb-1">🎁</span>
-            <span className="text-[10px] font-bold text-rose-300 block tracking-tighter uppercase font-mono">Surprise</span>
-            <span className="text-xs font-black text-rose-600">랜덤 데이트</span>
+            <span className="text-[10px] font-bold text-violet-300 block tracking-tighter uppercase font-mono">Surprise</span>
+            <span className="text-xs font-black text-violet-600">랜덤 데이트</span>
           </div>
         </div>
       </div>
@@ -42,7 +42,7 @@ export default function Home({ currentStep, onStart, onShowFeed }: HomeProps) {
       <div className="space-y-3">
         <button
           onClick={onStart}
-          className="w-full py-5 rounded-2xl text-xl font-black transition-all bg-rose-500 text-white active:scale-95 shadow-sm"
+          className="w-full py-5 rounded-full text-xl font-black transition-all bg-gradient-to-r from-[#FF4D6D] to-[#8B5CF6] text-white active:scale-95 shadow-lg shadow-rose-200"
         >
           {currentStep > 1 ? '데이트 이어가기 💘' : '두근두근 코스 뽑기 🎲'}
         </button>

@@ -16,6 +16,7 @@ interface HistoryItem {
   public_photo_url?: string | null;
   nickname?: string | null;
   review?: string | null;
+  is_public?: boolean;
 }
 
 interface MyPageProps {
@@ -80,6 +81,12 @@ export default function MyPage({ user, onStartJourney }: MyPageProps) {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+  };
+
+  const handlePublishToFeed = async (item: HistoryItem) => {
+    await supabase.from('history').update({ is_public: true }).eq('id', item.id);
+    setMyHistory(prev => prev.map(h => h.id === item.id ? { ...h, is_public: true } : h));
+    setSelectedDetail(prev => prev?.id === item.id ? { ...prev, is_public: true } : prev);
   };
 
   const handleDelete = async (id: string) => {
@@ -209,13 +216,10 @@ export default function MyPage({ user, onStartJourney }: MyPageProps) {
                   </div>
                   <div className="flex gap-1 items-center">
                     <button
-                      onClick={(e) => { e.stopPropagation(); setSelectedMission(item); }}
-                      className="w-10 h-10 rounded-xl overflow-hidden bg-rose-50 flex items-center justify-center shrink-0"
+                      onClick={(e) => { e.stopPropagation(); if (!item.public_photo_url) setSelectedMission(item); }}
+                      className={`w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center shrink-0 ${item.public_photo_url ? 'opacity-40 cursor-default' : ''}`}
                     >
-                      {item.public_photo_url
-                        ? <img src={item.public_photo_url} alt="" className="w-full h-full object-cover" />
-                        : <span className="text-lg">📸</span>
-                      }
+                      <span className="text-lg">📸</span>
                     </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); openEditModal(item); }}
@@ -285,7 +289,7 @@ export default function MyPage({ user, onStartJourney }: MyPageProps) {
 
               {selectedDetail.public_photo_url && (
                 <div className="w-full rounded-2xl overflow-hidden shadow-md">
-                  <img src={selectedDetail.public_photo_url} alt="인생네컷" className="w-full h-auto" />
+                  <img src={selectedDetail.public_photo_url} alt="뜻밖의 네컷" className="w-full h-auto" />
                 </div>
               )}
 
@@ -302,11 +306,41 @@ export default function MyPage({ user, onStartJourney }: MyPageProps) {
                 </div>
               </div>
 
+              {/* 소감 */}
+              <div className="space-y-2">
+                <p className="text-xs font-black text-slate-500">💬 소감</p>
+                {selectedDetail.review ? (
+                  <div className="bg-slate-50 rounded-2xl px-4 py-3 border border-slate-100 flex justify-between items-start gap-2">
+                    <p className="text-sm font-bold text-slate-600 leading-relaxed flex-1">"{selectedDetail.review}"</p>
+                    <button
+                      onClick={() => { openEditModal(selectedDetail); setSelectedDetail(null); }}
+                      className="text-xs text-slate-400 font-bold shrink-0"
+                    >수정</button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => { openEditModal(selectedDetail); setSelectedDetail(null); }}
+                    className="w-full py-3 rounded-2xl border border-dashed border-slate-200 text-sm font-bold text-slate-400 active:scale-95 transition-transform"
+                  >
+                    + 소감 남기기
+                  </button>
+                )}
+              </div>
+
               <button
-                onClick={() => { setSelectedMission(selectedDetail); setSelectedDetail(null); }}
-                className="w-full py-4 rounded-2xl font-black text-base bg-gradient-to-r from-rose-400 to-pink-500 text-white shadow-lg active:scale-95 transition-transform"
+                onClick={() => handlePublishToFeed(selectedDetail)}
+                disabled={selectedDetail.is_public}
+                className={`w-full py-4 rounded-2xl font-black text-base transition-all active:scale-95 border ${selectedDetail.is_public ? 'bg-emerald-50 text-emerald-500 border-emerald-100 cursor-default' : 'bg-white text-slate-600 border-slate-200'}`}
               >
-                📸 인증샷 프레임 만들기
+                {selectedDetail.is_public ? '✅ 피드에 공유됐어요!' : '📢 피드에 자랑하기'}
+              </button>
+
+              <button
+                onClick={() => { if (!selectedDetail.public_photo_url) { setSelectedMission(selectedDetail); setSelectedDetail(null); } }}
+                disabled={!!selectedDetail.public_photo_url}
+                className={`w-full py-4 rounded-2xl font-black text-base transition-all active:scale-95 ${selectedDetail.public_photo_url ? 'bg-slate-100 text-slate-400 cursor-default' : 'bg-gradient-to-r from-rose-400 to-pink-500 text-white shadow-lg'}`}
+              >
+                {selectedDetail.public_photo_url ? '✅ 프레임 완성됨' : '📸 인증샷 프레임 만들기'}
               </button>
             </motion.div>
           </motion.div>

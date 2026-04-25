@@ -3,6 +3,21 @@
 
 @theme {
   --font-sans: 'Pretendard', sans-serif;
+
+  /* Brand — Coral × Violet */
+  --color-rose-50:  #FFF0F3;
+  --color-rose-100: #FFD6DE;
+  --color-rose-200: #FFB3C1;
+  --color-rose-300: #FF8FA3;
+  --color-rose-400: #FF6B85;
+  --color-rose-500: #FF4D6D;
+  --color-rose-600: #E63355;
+  --color-rose-700: #C41F40;
+
+  --color-violet-400: #A78BFA;
+  --color-violet-500: #8B5CF6;
+  --color-violet-600: #7C3AED;
+
   --color-peach-50: #fff5f2;
   --color-peach-100: #ffe4db;
   --color-peach-400: #ff8c6b;

@@ -29,6 +29,11 @@ export default function Summary({ results, photos, user, onReset, savedHistoryId
   const [copyMsg, setCopyMsg] = useState('');
   const [frameImg, setFrameImg] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
+  const [isPublic, setIsPublic] = useState(false);
+  const [sharing, setSharing] = useState(false);
+  const [review, setReview] = useState('');
+  const [reviewSaved, setReviewSaved] = useState(false);
+  const [savingReview, setSavingReview] = useState(false);
   const frameRef = useRef<HTMLDivElement>(null);
 
   const hasPhotos = photos.station || photos.menu || photos.activity;
@@ -111,6 +116,33 @@ export default function Summary({ results, photos, user, onReset, savedHistoryId
           const myJourneys = JSON.parse(localStorage.getItem('my_journeys') || '[]');
           localStorage.setItem('my_journeys', JSON.stringify([...myJourneys, data.id]));
           onHistorySaved(data.id);
+
+          // 개별 사진 Storage 업로드
+          const uploadPhoto = async (dataUrl: string, path: string) => {
+            try {
+              const blob = await (await fetch(dataUrl)).blob();
+              const { error: upErr } = await supabase.storage.from('missions').upload(path, blob, { contentType: 'image/jpeg', upsert: true });
+              if (upErr) return null;
+              return supabase.storage.from('missions').getPublicUrl(path).data.publicUrl;
+            } catch { return null; }
+          };
+
+          const photoUpdates: Record<string, string> = {};
+          if (photos.station) {
+            const url = await uploadPhoto(photos.station, `public/${data.id}_station.jpg`);
+            if (url) photoUpdates.photo_station = url;
+          }
+          if (photos.menu) {
+            const url = await uploadPhoto(photos.menu, `public/${data.id}_menu.jpg`);
+            if (url) photoUpdates.photo_menu = url;
+          }
+          if (photos.activity) {
+            const url = await uploadPhoto(photos.activity, `public/${data.id}_activity.jpg`);
+            if (url) photoUpdates.photo_activity = url;
+          }
+          if (Object.keys(photoUpdates).length > 0) {
+            await supabase.from('history').update(photoUpdates).eq('id', data.id);
+          }
         }
       } catch (err) {
         console.error("히스토리 저장 실패:", err);
@@ -119,6 +151,32 @@ export default function Summary({ results, photos, user, onReset, savedHistoryId
 
     saveToHistory();
   }, [results]);
+
+  const handleSaveReview = async () => {
+    if (!savedHistoryId || !review.trim() || savingReview) return;
+    setSavingReview(true);
+    try {
+      await supabase.from('history').update({ review: review.trim() }).eq('id', savedHistoryId);
+      setReviewSaved(true);
+    } catch {
+      setCopyMsg('저장에 실패했어요.');
+    } finally {
+      setSavingReview(false);
+    }
+  };
+
+  const handlePublishToFeed = async () => {
+    if (!savedHistoryId || isPublic) return;
+    setSharing(true);
+    try {
+      await supabase.from('history').update({ is_public: true }).eq('id', savedHistoryId);
+      setIsPublic(true);
+    } catch {
+      setCopyMsg('공유에 실패했어요. 다시 시도해주세요.');
+    } finally {
+      setSharing(false);
+    }
+  };
 
   const handleShare = async () => {
     const text = `✨ 우리의 완벽한 데이트/모임 코스 ✨\n\n🚇 모임: ${lineData?.name || ''} ${results.station}역\n🍔 메뉴: ${results.menu} (💸결제: ${results.menuPayer})\n🎯 놀거리: ${results.activity} (💸결제: ${results.activityPayer})\n\n우리 오늘 이거 어때? 💖\n(만든곳: 뜻밖의 여정)`;
@@ -188,16 +246,16 @@ export default function Summary({ results, photos, user, onReset, savedHistoryId
         </div>
       </div>
 
-      {/* 인생네컷 프레임 섹션 */}
+      {/* 뜻밖의 네컷 프레임 섹션 */}
       {hasPhotos && (
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-4">
-          <p className="text-center font-black text-slate-700 text-lg">📸 오늘의 인생네컷</p>
+          <p className="text-center font-black text-slate-700 text-lg">📸 오늘의 뜻밖의 네컷</p>
 
           {frameImg ? (
             /* 생성 완료 — 이미지 표시 */
             <div className="space-y-3">
               <div className="w-full rounded-2xl overflow-hidden shadow-lg">
-                <img src={frameImg} alt="인생네컷 프레임" className="w-full h-auto" />
+                <img src={frameImg} alt="뜻밖의 네컷 프레임" className="w-full h-auto" />
               </div>
               <button
                 onClick={handleShareFrame}
@@ -262,8 +320,48 @@ export default function Summary({ results, photos, user, onReset, savedHistoryId
         <p className="text-center text-sm font-bold text-emerald-600 bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-100">{copyMsg}</p>
       )}
 
+      {/* 소감 남기기 */}
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 space-y-3">
+        <p className="text-sm font-black text-slate-700">💬 오늘 여정 소감 남기기</p>
+        {reviewSaved ? (
+          <div className="bg-emerald-50 rounded-xl px-4 py-3 border border-emerald-100">
+            <p className="text-sm font-bold text-emerald-600 leading-relaxed">"{review}"</p>
+          </div>
+        ) : (
+          <>
+            <textarea
+              value={review}
+              onChange={e => setReview(e.target.value)}
+              placeholder="오늘 어땠어요? 짧게 남겨주세요 ✨"
+              maxLength={100}
+              rows={2}
+              className="w-full bg-slate-50 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 placeholder:text-slate-300 placeholder:font-normal focus:outline-none resize-none border border-slate-100"
+            />
+            <div className="flex justify-between items-center">
+              <span className="text-[10px] text-slate-300 font-bold">{review.length}/100</span>
+              <button
+                onClick={handleSaveReview}
+                disabled={!review.trim() || savingReview}
+                className="px-4 py-2 rounded-xl text-xs font-black bg-slate-800 text-white disabled:opacity-30 active:scale-95 transition-transform"
+              >
+                {savingReview ? '저장 중...' : '저장하기'}
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* 피드 공유 */}
+      <button
+        onClick={handlePublishToFeed}
+        disabled={isPublic || sharing}
+        className={`w-full py-4 rounded-2xl font-black text-base transition-all active:scale-95 border ${isPublic ? 'bg-emerald-50 text-emerald-500 border-emerald-100 cursor-default' : 'bg-white text-slate-600 border-slate-200'}`}
+      >
+        {isPublic ? '✅ 피드에 공유됐어요!' : sharing ? '공유 중...' : '📢 피드에 자랑하기'}
+      </button>
+
       <div className="space-y-3">
-        <button onClick={handleShare} className="w-full py-5 rounded-2xl text-xl font-black transition-all bg-rose-500 text-white active:scale-95">
+        <button onClick={handleShare} className="w-full py-5 rounded-full text-xl font-black transition-all bg-gradient-to-r from-[#FF4D6D] to-[#8B5CF6] text-white active:scale-95 shadow-lg shadow-rose-200">
           이 코스로 친구한테 공유하기 💌
         </button>
         <button onClick={() => window.open(`https://search.naver.com/search.naver?query=${encodeURIComponent(results.station + '역 데이트 추천')}`, '_blank')} className="w-full py-4 rounded-[2rem] flex flex-col items-center justify-center transition-all bg-[#03C75A] text-white shadow-lg border border-[#03C75A]/20 active:scale-95">

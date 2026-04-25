@@ -12,7 +12,6 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     e.preventDefault();
     const trimmed = nickname.trim();
     if (!trimmed) return;
-    localStorage.setItem('yeojung_nickname', trimmed);
     onComplete(trimmed);
   };
 
@@ -51,11 +50,18 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
           <button
             type="submit"
             disabled={!nickname.trim()}
-            className={`w-full py-5 rounded-2xl text-xl font-black transition-all active:scale-95 ${nickname.trim() ? 'bg-rose-500 text-white' : 'bg-slate-100 text-slate-400'}`}
+            className={`w-full py-5 rounded-full text-xl font-black transition-all active:scale-95 ${nickname.trim() ? 'bg-gradient-to-r from-[#FF4D6D] to-[#8B5CF6] text-white shadow-lg shadow-rose-200' : 'bg-slate-100 text-slate-400'}`}
           >
             여정 시작하기 💘
           </button>
         </form>
+
+        <button
+          onClick={() => onComplete('')}
+          className="w-full py-3 text-sm font-bold text-slate-400"
+        >
+          나중에 설정할게요
+        </button>
       </div>
     </motion.div>
   );
