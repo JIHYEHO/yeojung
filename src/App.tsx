@@ -15,6 +15,7 @@ import StepHistory from './components/StepHistory';
 import MyPage from './components/MyPage';
 import Onboarding from './components/Onboarding';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Analytics } from '@vercel/analytics/react';
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -162,7 +163,8 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-[#FAFAF7] text-slate-800 p-4 sm:p-6 font-sans flex flex-col items-center selection:bg-rose-100 relative pb-32 overflow-x-hidden">
+    <>
+      <div className="min-h-[100dvh] bg-[#FAFAF7] text-slate-800 p-4 sm:p-6 font-sans flex flex-col items-center selection:bg-rose-100 relative pb-32 overflow-x-hidden">
 
       {currentTab === 'home' && (
         <div className="w-full max-w-md pt-8">
@@ -197,7 +199,8 @@ export default function App() {
         onTabChange={setCurrentTab} 
         isRouletteActive={step > 1 && step < 10}
       />
-    </div>
+      </div>
+      <Analytics />
+    </>
   );
 }
-
