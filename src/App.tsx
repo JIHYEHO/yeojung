@@ -15,9 +15,13 @@ import Summary from './components/Summary';
 import StepHistory from './components/StepHistory';
 import MyPage from './components/MyPage';
 import Onboarding from './components/Onboarding';
+import AdminPage from './components/AdminPage';
 import { AnimatePresence, motion } from 'framer-motion';
 
 export default function App() {
+  if (new URLSearchParams(window.location.search).has('admin')) {
+    return <AdminPage />;
+  }
   const [user, setUser] = useState<User | null>(null);
   const [visited, setVisited] = useState<boolean>(() => localStorage.getItem('yeojung_visited') !== null);
   const [currentTab, setCurrentTab] = useState<TabType>('home');
