@@ -6,6 +6,7 @@ import { supabase } from './utils/supabaseClient';
 import type { User } from '@supabase/supabase-js';
 import StepSubwayLine from './components/StepSubwayLine';
 import StepSubwayDest from './components/StepSubwayDest';
+import StepQuest from './components/StepQuest';
 import StepPhotoCapture from './components/StepPhotoCapture';
 import StepMenu from './components/StepMenu';
 import StepPayment from './components/StepPayment';
@@ -38,6 +39,8 @@ export default function App() {
     line?: string;
     startStation?: string;
     station?: string;
+    mission?: string;
+    topic?: string;
     menu?: string;
     menuPayer?: string;
     activity?: string;
@@ -81,14 +84,15 @@ export default function App() {
             <AnimatePresence mode="wait">
               {step === 1  && <motion.h2 key="1"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">어느 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D6D] to-[#8B5CF6]">노선 탈까?</span> 🚃</motion.h2>}
               {step === 2  && <motion.h2 key="2"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">어느 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D6D] to-[#8B5CF6]">역에 내릴까?</span> 🌸</motion.h2>}
-              {step === 3  && <motion.h2 key="3"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">역에서 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D6D] to-[#8B5CF6]">인증샷!</span> 📸</motion.h2>}
-              {step === 4  && <motion.h2 key="4"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">가서 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D6D] to-[#FF8FA3]">뭐 먹을까?</span> 🍰</motion.h2>}
-              {step === 5  && <motion.h2 key="5"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">밥값은 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D6D] to-[#8B5CF6]">누가 쏴?</span> 💕</motion.h2>}
-              {step === 6  && <motion.h2 key="6"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">밥 먹은 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D6D] to-[#8B5CF6]">인증샷!</span> 📸</motion.h2>}
-              {step === 7  && <motion.h2 key="7"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">밥 먹고 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8B5CF6] to-[#FF4D6D]">뭐 할까?</span> 🧸</motion.h2>}
-              {step === 8  && <motion.h2 key="8"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">놀거리는 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8B5CF6] to-[#FF4D6D]">누가 쏴?</span> 💝</motion.h2>}
-              {step === 9  && <motion.h2 key="9"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">놀거리 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8B5CF6] to-[#FF4D6D]">인증샷!</span> 📸</motion.h2>}
-              {step === 10 && <motion.h2 key="10" initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">달달한 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D6D] to-[#8B5CF6]">코스 완성!</span> 💖</motion.h2>}
+              {step === 3  && <motion.h2 key="3"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">오늘의 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D6D] to-[#8B5CF6]">퀘스트 공개!</span> 🎯</motion.h2>}
+              {step === 4  && <motion.h2 key="4"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">역에서 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D6D] to-[#8B5CF6]">인증샷!</span> 📸</motion.h2>}
+              {step === 5  && <motion.h2 key="5"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">가서 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D6D] to-[#FF8FA3]">뭐 먹을까?</span> 🍰</motion.h2>}
+              {step === 6  && <motion.h2 key="6"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">밥값은 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D6D] to-[#8B5CF6]">누가 쏴?</span> 💕</motion.h2>}
+              {step === 7  && <motion.h2 key="7"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">밥 먹은 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D6D] to-[#8B5CF6]">인증샷!</span> 📸</motion.h2>}
+              {step === 8  && <motion.h2 key="8"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">밥 먹고 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8B5CF6] to-[#FF4D6D]">뭐 할까?</span> 🧸</motion.h2>}
+              {step === 9  && <motion.h2 key="9"  initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">놀거리는 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8B5CF6] to-[#FF4D6D]">누가 쏴?</span> 💝</motion.h2>}
+              {step === 10 && <motion.h2 key="10" initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">놀거리 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8B5CF6] to-[#FF4D6D]">인증샷!</span> 📸</motion.h2>}
+              {step === 11 && <motion.h2 key="11" initial={{opacity:0, y:-10}} animate={{opacity:1,y:0}} exit={{opacity:0,y:10}} className="absolute text-3xl sm:text-4xl font-black tracking-tighter text-slate-800 drop-shadow-sm leading-tight w-full">달달한 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D6D] to-[#8B5CF6]">코스 완성!</span> 💖</motion.h2>}
             </AnimatePresence>
           </div>
         </header>
@@ -112,41 +116,49 @@ export default function App() {
             )}
 
             {step === 3 && (
-              <StepPhotoCapture
+              <StepQuest
                 key="step3"
+                station={results.station!}
+                onComplete={(mission, topic) => handleNext({ mission, topic })}
+              />
+            )}
+
+            {step === 4 && (
+              <StepPhotoCapture
+                key="step4"
                 label={`${results.station}역에 도착했나요?`}
                 badge={`📍 ${results.station}역`}
                 onComplete={(photo) => handlePhotoNext('station', photo)}
               />
             )}
 
-            {step === 4 && <StepMenu key="step4" onComplete={(val) => handleNext({ menu: val })} previousResult={results.station} />}
+            {step === 5 && <StepMenu key="step5" onComplete={(val) => handleNext({ menu: val })} previousResult={results.station} />}
 
-            {step === 5 && <StepPayment key="step5" context="menu" participants={participants} onParticipantsChange={setParticipants} onComplete={(val) => handleNext({ menuPayer: val })} previousResults={results} />}
+            {step === 6 && <StepPayment key="step6" context="menu" participants={participants} onParticipantsChange={setParticipants} onComplete={(val) => handleNext({ menuPayer: val })} previousResults={results} />}
 
-            {step === 6 && (
+            {step === 7 && (
               <StepPhotoCapture
-                key="step6"
+                key="step7"
                 label="맛있게 드셨나요?"
                 badge={`🍔 ${results.menu}`}
                 onComplete={(photo) => handlePhotoNext('menu', photo)}
               />
             )}
 
-            {step === 7 && <StepActivity key="step7" onComplete={(val) => handleNext({ activity: val })} previousResults={results} />}
+            {step === 8 && <StepActivity key="step8" onComplete={(val) => handleNext({ activity: val })} previousResults={results} />}
 
-            {step === 8 && <StepPayment key="step8" context="activity" participants={participants} onParticipantsChange={setParticipants} onComplete={(val) => handleNext({ activityPayer: val })} previousResults={results} />}
+            {step === 9 && <StepPayment key="step9" context="activity" participants={participants} onParticipantsChange={setParticipants} onComplete={(val) => handleNext({ activityPayer: val })} previousResults={results} />}
 
-            {step === 9 && (
+            {step === 10 && (
               <StepPhotoCapture
-                key="step9"
+                key="step10"
                 label="신나게 놀았나요?"
                 badge={`🎯 ${results.activity}`}
                 onComplete={(photo) => handlePhotoNext('activity', photo)}
               />
             )}
 
-            {step === 10 && <Summary key="summary" results={results} photos={photos} user={user} onReset={resetRoulette} savedHistoryId={savedHistoryId} onHistorySaved={setSavedHistoryId} />}
+            {step === 11 && <Summary key="summary" results={results} photos={photos} user={user} onReset={resetRoulette} savedHistoryId={savedHistoryId} onHistorySaved={setSavedHistoryId} />}
           </AnimatePresence>
         </main>
       </div>
@@ -195,7 +207,7 @@ export default function App() {
       <TabBar 
         currentTab={currentTab} 
         onTabChange={setCurrentTab} 
-        isRouletteActive={step > 1 && step < 10}
+        isRouletteActive={step > 1 && step < 11}
       />
     </div>
   );

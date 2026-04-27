@@ -11,21 +11,45 @@ interface PhotoCarouselProps {
 
 function PhotoCarousel({ photos, gradient }: PhotoCarouselProps) {
   const [idx, setIdx] = useState(0);
-  const touchStartX = useRef<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    let dragging = false;
+    let sx = 0, sy = 0;
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX.current === null) return;
-    const dx = e.changedTouches[0].clientX - touchStartX.current;
-    if (Math.abs(dx) > 40) {
-      if (dx < 0) setIdx(i => Math.min(i + 1, photos.length - 1));
-      else setIdx(i => Math.max(i - 1, 0));
-    }
-    touchStartX.current = null;
-  };
+    const onDown = (e: PointerEvent) => {
+      dragging = true; sx = e.clientX; sy = e.clientY;
+      console.log('[carousel] pointerdown', sx);
+    };
+    const onMove = (e: PointerEvent) => {
+      if (!dragging) return;
+      const dx = Math.abs(e.clientX - sx), dy = Math.abs(e.clientY - sy);
+      if (dx > dy && dx > 5) e.preventDefault();
+    };
+    const onUp = (e: PointerEvent) => {
+      if (!dragging) return;
+      dragging = false;
+      const dx = e.clientX - sx;
+      const dy = Math.abs(e.clientY - sy);
+      console.log('[carousel] pointerup dx=', dx, 'dy=', dy);
+      if (Math.abs(dx) > 25 && dy < 80) {
+        if (dx < 0) setIdx(i => Math.min(i + 1, photos.length - 1));
+        else         setIdx(i => Math.max(i - 1, 0));
+      }
+    };
+
+    el.addEventListener('pointerdown', onDown);
+    el.addEventListener('pointermove', onMove, { passive: false });
+    el.addEventListener('pointerup',   onUp);
+    el.addEventListener('pointercancel', () => { dragging = false; });
+    return () => {
+      el.removeEventListener('pointerdown', onDown);
+      el.removeEventListener('pointermove', onMove);
+      el.removeEventListener('pointerup',   onUp);
+    };
+  }, [photos.length]);
 
   if (photos.length === 0) {
     return (
@@ -36,19 +60,19 @@ function PhotoCarousel({ photos, gradient }: PhotoCarouselProps) {
   }
 
   return (
-    <div className="w-full h-full relative overflow-hidden" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+    <div ref={containerRef} className="w-full h-full relative overflow-hidden">
       <div
         className="flex h-full transition-transform duration-300 ease-out"
-        style={{ transform: `translateX(-${idx * 100}%)` }}
+        style={{ transform: `translateX(-${idx * (100 / photos.length)}%)`, width: `${photos.length * 100}%` }}
       >
         {photos.map((url, i) => (
-          <div key={i} className="h-full shrink-0" style={{ minWidth: '100%' }}>
-            <img src={url} alt="" className="w-full h-full object-cover object-top" />
+          <div key={i} className="h-full" style={{ width: `${100 / photos.length}%` }}>
+            <img src={url} alt="" className="w-full h-full object-cover object-top" draggable={false} />
           </div>
         ))}
       </div>
       {photos.length > 1 && (
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10 pointer-events-none">
           {photos.map((_, i) => (
             <div key={i} className={`rounded-full transition-all duration-200 ${i === idx ? 'w-4 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/50'}`} />
           ))}
@@ -85,11 +109,12 @@ function CommentSheet({ historyId, station, onClose, onCountChange }: CommentShe
 
   useEffect(() => {
     const fetch = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('comments')
         .select('*')
         .eq('history_id', historyId)
         .order('created_at', { ascending: true });
+      if (error) console.error('댓글 조회 오류:', error.message);
       setComments(data || []);
       setLoading(false);
     };
@@ -99,11 +124,14 @@ function CommentSheet({ historyId, station, onClose, onCountChange }: CommentShe
   const handlePost = async () => {
     if (!text.trim() || posting) return;
     setPosting(true);
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('comments')
       .insert({ history_id: historyId, nickname, content: text.trim() })
       .select()
       .single();
+    if (error) {
+      console.error('댓글 등록 오류:', error.message, error.code);
+    }
     if (data) {
       const next = [...comments, data];
       setComments(next);
@@ -346,60 +374,94 @@ export default function StepHistory({ onClose }: StepHistoryProps) {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
-                  className="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100"
+                  className="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100"
                 >
-                  {/* 사진 */}
-                  <div className="relative h-52 overflow-hidden">
+                  {/* 사진 영역 */}
+                  <div className="relative h-56 overflow-hidden">
                     <PhotoCarousel
                       photos={[item.photo_station, item.photo_menu, item.photo_activity, item.public_photo_url].filter((u): u is string => !!u)}
                       gradient={gradient}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                    <span className="absolute top-3 left-3 text-[11px] font-black px-2.5 py-1 rounded-full text-white shadow" style={{ backgroundColor: lineColor }}>
+                    {/* 자연스러운 오버레이: 하단 강하게, 상단 살짝 */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/20" />
+
+                    {/* 노선 뱃지 — 실제 노선 컬러 */}
+                    <span
+                      className="absolute top-3 left-3 text-[11px] font-black px-2.5 py-1 rounded-full text-white"
+                      style={{ backgroundColor: lineColor, boxShadow: `0 2px 8px ${lineColor}66` }}
+                    >
                       {lineData?.name || `${item.line_id}호선`}
                     </span>
+
+                    {/* 날짜 뱃지 (우상단) */}
+                    <span className="absolute top-3 right-3 text-[10px] font-bold text-white/70 bg-black/25 backdrop-blur-sm px-2 py-0.5 rounded-full">
+                      {formatDate(item.created_at)}
+                    </span>
+
+                    {/* 역명 (좌하단) */}
                     <div className="absolute bottom-3 left-4">
-                      <p className="text-white font-black text-2xl tracking-tighter drop-shadow-md leading-none">{item.station}역</p>
-                      <p className="text-white/60 text-xs font-bold mt-0.5">{formatDate(item.created_at)}</p>
+                      <p className="text-white font-black text-[26px] tracking-tighter leading-none drop-shadow-lg">{item.station}역</p>
                     </div>
-                    <button onClick={() => handleLike(item)} className="absolute bottom-3 right-4 flex flex-col items-center gap-0.5">
-                      <motion.span whileTap={{ scale: 1.4 }} transition={{ type: 'spring', stiffness: 400, damping: 15 }} className="text-2xl drop-shadow">
-                        {isLiked ? '❤️' : '🤍'}
-                      </motion.span>
-                      <span className="text-white font-black text-[10px] drop-shadow">{item.likes || 0}</span>
-                    </button>
                   </div>
 
                   {/* 하단 정보 */}
-                  <div className="px-4 py-3 space-y-2.5">
-                    {item.nickname && <p className="text-xs font-black text-slate-500">🌸 {item.nickname}</p>}
-                    <div className="flex flex-wrap gap-2">
-                      <span className="bg-orange-50 text-orange-500 px-3 py-1.5 rounded-full text-xs font-bold border border-orange-100">🍔 {item.menu}</span>
-                      <span className="bg-violet-50 text-violet-500 px-3 py-1.5 rounded-full text-xs font-bold border border-violet-100">🎯 {item.activity}</span>
-                    </div>
-                    <div className="flex gap-3">
-                      <span className="text-slate-300 text-[11px] font-bold">💸 {item.payer_menu}님</span>
-                      <span className="text-slate-200 text-[11px]">·</span>
-                      <span className="text-slate-300 text-[11px] font-bold">💸 {item.payer_activity}님</span>
-                    </div>
-                    {item.review && (
-                      <div className="bg-slate-50 rounded-2xl px-3 py-2.5 border border-slate-100">
-                        <p className="text-xs font-bold text-slate-500 leading-relaxed">💬 {item.review}</p>
+                  <div className="px-4 pt-3 pb-2 space-y-3">
+
+                    {/* 유저 행 + 좋아요 */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        {/* 아바타 */}
+                        <div
+                          className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-white text-xs font-black"
+                          style={{ background: `linear-gradient(135deg, #FF4D6D, #8B5CF6)` }}
+                        >
+                          {(item.nickname || '여')[0]}
+                        </div>
+                        <span className="text-sm font-black text-slate-700">
+                          {item.nickname || '익명의 여행자'}
+                        </span>
                       </div>
+
+                      {/* 좋아요 버튼 — 카드 안으로 */}
+                      <button onClick={() => handleLike(item)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-100 active:scale-95 transition-transform">
+                        <motion.span whileTap={{ scale: 1.4 }} transition={{ type: 'spring', stiffness: 400, damping: 15 }} className="text-base leading-none">
+                          {isLiked ? '❤️' : '🤍'}
+                        </motion.span>
+                        <span className="text-xs font-black text-slate-500">{item.likes || 0}</span>
+                      </button>
+                    </div>
+
+                    {/* 태그 pills */}
+                    <div className="flex flex-wrap gap-1.5">
+                      <span className="bg-orange-50 text-orange-600 px-3 py-1 rounded-full text-[12px] font-bold">🍔 {item.menu}</span>
+                      <span className="bg-violet-50 text-violet-600 px-3 py-1 rounded-full text-[12px] font-bold">🎯 {item.activity}</span>
+                    </div>
+
+                    {/* 결제자 */}
+                    <div className="flex items-center gap-2 text-[11px] text-slate-400 font-medium">
+                      <span>💸 {item.payer_menu}님</span>
+                      <span className="text-slate-200">·</span>
+                      <span>💸 {item.payer_activity}님</span>
+                    </div>
+
+                    {/* 소감 */}
+                    {item.review && (
+                      <p className="text-[13px] text-slate-600 font-medium leading-relaxed bg-slate-50 rounded-2xl px-3 py-2.5">
+                        "{item.review}"
+                      </p>
                     )}
 
                     {/* 댓글 버튼 */}
                     <button
                       onClick={() => setOpenCommentId(item.id)}
-                      className="w-full flex items-center gap-2 pt-2 border-t border-slate-50"
+                      className="w-full flex items-center gap-2 pt-2.5 border-t border-slate-100"
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                       </svg>
                       <span className="text-xs font-bold text-slate-400">
-                        {commentCount > 0 ? `댓글 ${commentCount}개` : '댓글 달기'}
+                        {commentCount > 0 ? `댓글 ${commentCount}개 보기` : '첫 댓글을 남겨보세요'}
                       </span>
-                      {commentCount === 0 && <span className="text-xs text-slate-300 font-medium">· 첫 번째로 남겨보세요 ✨</span>}
                     </button>
                   </div>
                 </motion.div>
