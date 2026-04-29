@@ -17,6 +17,7 @@ import MyPage from './components/MyPage';
 import Onboarding from './components/Onboarding';
 import AdminPage from './components/AdminPage';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Helmet } from 'react-helmet-async';
 
 export default function App() {
   if (new URLSearchParams(window.location.search).has('admin')) {
@@ -181,31 +182,45 @@ export default function App() {
     <div className="min-h-[100dvh] bg-[#FAFAF7] text-slate-800 p-4 sm:p-6 font-sans flex flex-col items-center selection:bg-rose-100 relative pb-32 overflow-x-hidden">
 
       {currentTab === 'home' && (
-        <div className="w-full max-w-md pt-8">
-          <header className="text-center mb-10">
-             <h1 className="text-[12px] font-black text-rose-400 tracking-[0.4em] uppercase mb-2">Love Journey</h1>
-             <p className="text-3xl font-black text-slate-800 tracking-tighter">우리 어디갈까? 💘</p>
-          </header>
-          <Home 
-            currentStep={step} 
-            onStart={() => setCurrentTab('roulette')} 
-            onShowFeed={() => setCurrentTab('feed')} 
-          />
-        </div>
+        <>
+          <Helmet><title>뜻밖의 여정 💘</title></Helmet>
+          <div className="w-full max-w-md pt-8">
+            <header className="text-center mb-10">
+               <h1 className="text-[12px] font-black text-rose-400 tracking-[0.4em] uppercase mb-2">Love Journey</h1>
+               <p className="text-3xl font-black text-slate-800 tracking-tighter">우리 어디갈까? 💘</p>
+            </header>
+            <Home
+              currentStep={step}
+              onStart={() => setCurrentTab('roulette')}
+              onShowFeed={() => setCurrentTab('feed')}
+            />
+          </div>
+        </>
       )}
 
-      {currentTab === 'roulette' && renderRouletteContent()}
+      {currentTab === 'roulette' && (
+        <>
+          <Helmet><title>여정 뽑기 | 뜻밖의 여정</title></Helmet>
+          {renderRouletteContent()}
+        </>
+      )}
 
       {currentTab === 'feed' && (
-        <div className="w-full max-w-md">
-          <StepHistory onClose={() => setCurrentTab('home')} />
-        </div>
+        <>
+          <Helmet><title>피드 | 뜻밖의 여정</title></Helmet>
+          <div className="w-full max-w-md">
+            <StepHistory onClose={() => setCurrentTab('home')} />
+          </div>
+        </>
       )}
 
       {currentTab === 'mypage' && (
-        <div className="w-full max-w-md">
-          <MyPage user={user} onStartJourney={() => setCurrentTab('roulette')} />
-        </div>
+        <>
+          <Helmet><title>마이페이지 | 뜻밖의 여정</title></Helmet>
+          <div className="w-full max-w-md">
+            <MyPage user={user} onStartJourney={() => setCurrentTab('roulette')} />
+          </div>
+        </>
       )}
 
       <TabBar 
